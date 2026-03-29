@@ -171,7 +171,7 @@ def _print_metrics(model: str, metrics) -> None:
             tm = metrics.by_tier[t]
             table.add_row(
                 f"Tier {t} check@1",
-                f"{tm.check_rate * 100:.0f}% ({tm.count})",
+                f"{_fmt_rate(tm.check_rate)} ({tm.count})",
             )
 
     console.print(table)

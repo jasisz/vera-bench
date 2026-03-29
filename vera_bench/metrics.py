@@ -11,7 +11,7 @@ from pathlib import Path
 class TierMetrics:
     tier: int
     count: int
-    check_rate: float
+    check_rate: float | None
     verify_rate: float | None
     fix_rate: float | None
     run_correct_rate: float | None
@@ -20,7 +20,7 @@ class TierMetrics:
 @dataclass
 class BenchmarkMetrics:
     total_problems: int
-    check_rate: float
+    check_rate: float | None
     verify_rate: float | None
     fix_rate: float | None
     run_correct_rate: float | None
