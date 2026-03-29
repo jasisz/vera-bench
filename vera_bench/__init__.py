@@ -1,3 +1,8 @@
 """VeraBench — benchmark suite for the Vera programming language."""
 
-__version__ = "0.1.0"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("vera-bench")
+except PackageNotFoundError:
+    __version__ = "0.1.0"

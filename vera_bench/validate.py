@@ -32,7 +32,14 @@ def find_vera_file(problem_id: str, solutions_dir: Path) -> Path | None:
     vera_dir = solutions_dir / "vera"
     prefix = problem_id + "_"
     matches = list(vera_dir.glob(f"{prefix}*.vera"))
-    return matches[0] if len(matches) == 1 else None
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        names = [str(m) for m in matches]
+        console.print(
+            f"[yellow]Warning: multiple .vera files for {problem_id}: {names}[/yellow]"
+        )
+    return None
 
 
 def normalize_output(raw: str, expected) -> tuple[str, str]:
@@ -74,7 +81,7 @@ def validate_problem(
 
     # Load JSON
     try:
-        with open(problem_path) as f:
+        with open(problem_path, encoding="utf-8") as f:
             problem = json.load(f)
     except (json.JSONDecodeError, OSError) as e:
         result["errors"].append(f"JSON load error: {e}")

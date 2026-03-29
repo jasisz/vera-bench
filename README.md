@@ -70,7 +70,7 @@ DafnyBench demonstrated that tracking verification success rates over time attra
 
 ## License
 
-Vera is licensed under the [MIT License](LICENSE).
+VeraBench is licensed under the [MIT License](LICENSE).
 
 Copyright © 2026 Alasdair Allan
 

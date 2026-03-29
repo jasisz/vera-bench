@@ -72,8 +72,9 @@ def build_fix_prompt(original_code: str, error_output: str) -> dict:
     Returns dict with 'system' and 'user' keys.
     """
     user_msg = (
-        "The Vera code you wrote produced this error:\n\n"
-        f"{error_output}\n\n"
+        "The Vera code you wrote:\n\n"
+        f"```vera\n{original_code}\n```\n\n"
+        f"produced this error:\n\n{error_output}\n\n"
         "Fix the code. Output only the corrected Vera code, "
         "no explanation."
     )

@@ -19,5 +19,5 @@
   ],
   "vera_check_must_pass": true,
   "vera_verify_tier1": true,
-  "notes": "Mirror of max_of_two. Same slot ordering challenge."
+  "notes": "min_of_two(a, b): @Int.0=b (rightmost), @Int.1=a (leftmost). Mirror of max_of_two — same De Bruijn slot ordering challenge."
 }

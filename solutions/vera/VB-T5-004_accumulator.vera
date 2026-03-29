@@ -12,7 +12,7 @@ private fn add_value(@Int, @Int -> @Int)
 
 -- Pure entry point: sum 1..n using State<Int> handler.
 public fn sum_with_state(@Nat -> @Int)
-  requires(@Nat.0 >= 0)
+  requires(true)
   ensures(true)
   effects(pure)
 {

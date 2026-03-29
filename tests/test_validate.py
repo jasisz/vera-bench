@@ -174,6 +174,7 @@ class TestPrompts:
 
         result = build_fix_prompt("original code", "Error: type mismatch")
         assert "Error: type mismatch" in result["user"]
+        assert "original code" in result["user"]
 
 
 class TestCLI:

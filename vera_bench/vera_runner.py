@@ -64,7 +64,7 @@ class VeraRunner:
     def check(self, file_path: str | Path) -> CheckResult:
         cmd = [self.vera, "check", "--json", str(file_path)]
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=self.timeout_check
+            cmd, capture_output=True, text=True, timeout=self.timeout_check, check=False
         )
         combined = result.stdout + result.stderr
         try:
@@ -88,7 +88,11 @@ class VeraRunner:
     def verify(self, file_path: str | Path) -> VerifyResult:
         cmd = [self.vera, "verify", "--json", str(file_path)]
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=self.timeout_verify
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=self.timeout_verify,
+            check=False,
         )
         combined = result.stdout + result.stderr
         try:
@@ -121,7 +125,7 @@ class VeraRunner:
             cmd.append("--")
             cmd.extend(str(a) for a in args)
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=self.timeout_run
+            cmd, capture_output=True, text=True, timeout=self.timeout_run, check=False
         )
         return RunResult(
             exit_code=result.returncode,
