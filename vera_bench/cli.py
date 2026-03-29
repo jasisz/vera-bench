@@ -119,6 +119,10 @@ def run(
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{model}.jsonl"
 
+    # Truncate stale results from previous runs
+    if output_path.exists():
+        output_path.unlink()
+
     # Create clients
     client = create_client(model)
     vera = VeraRunner()
@@ -225,6 +229,10 @@ def baselines(language: str, output_dir: Path | None):
         output_dir = root / "results"
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{language}-baseline.jsonl"
+
+    # Truncate stale results from previous runs
+    if output_path.exists():
+        output_path.unlink()
 
     console.print(f"Language: {language}")
     console.print(f"Output:   {output_path}\n")

@@ -129,3 +129,14 @@ class TestBaselinesCLI:
         from vera_bench.cli import main
 
         assert "baselines" in main.commands
+
+    def test_baselines_runs_and_produces_output(self, tmp_path):
+        from click.testing import CliRunner
+
+        from vera_bench.cli import main
+
+        result = CliRunner().invoke(main, ["baselines", "--output-dir", str(tmp_path)])
+        assert result.exit_code == 0
+        jsonl_files = list(tmp_path.glob("*.jsonl"))
+        assert len(jsonl_files) == 1
+        assert jsonl_files[0].name == "python-baseline.jsonl"

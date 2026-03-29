@@ -132,6 +132,7 @@ def run_python_baseline(
             attempt=1,
             check_pass=True,
             run_correct=False,
+            tests_total=len(test_cases),
             error_message="Execution timed out",
             wall_time_s=round(time.monotonic() - start, 2),
             timestamp=_now(),
@@ -147,6 +148,7 @@ def run_python_baseline(
             attempt=1,
             check_pass=True,
             run_correct=False,
+            tests_total=len(test_cases),
             error_message=result.stderr[:200] if result.stderr else "Non-zero exit",
             wall_time_s=elapsed,
             timestamp=_now(),
@@ -163,6 +165,7 @@ def run_python_baseline(
             attempt=1,
             check_pass=True,
             run_correct=False,
+            tests_total=len(test_cases),
             error_message=f"Bad JSON output: {result.stdout[:100]}",
             wall_time_s=elapsed,
             timestamp=_now(),
@@ -192,7 +195,6 @@ def run_all_baselines(
     language: str = "python",
 ) -> list[ProblemResult]:
     """Run baselines for all problems. Write JSONL incrementally."""
-    work_dir = Path(tempfile.mkdtemp(prefix="verabench_baseline_"))
     all_results: list[ProblemResult] = []
 
     testable = [p for p in problems if p.get("test_cases")]
@@ -201,17 +203,19 @@ def run_all_baselines(
     if skipped:
         console.print(f"[dim]Skipping {skipped} problems with no test cases[/dim]")
 
-    with Progress(console=console) as progress:
-        task = progress.add_task("Running baselines...", total=len(testable))
-        for problem in testable:
-            result = run_python_baseline(problem, solutions_dir, work_dir)
-            all_results.append(result)
+    with tempfile.TemporaryDirectory(prefix="verabench_baseline_") as tmpdir:
+        work_dir = Path(tmpdir)
+        with Progress(console=console) as progress:
+            task = progress.add_task("Running baselines...", total=len(testable))
+            for problem in testable:
+                result = run_python_baseline(problem, solutions_dir, work_dir)
+                all_results.append(result)
 
-            if output_path:
-                with open(output_path, "a", encoding="utf-8") as f:
-                    f.write(result.to_jsonl() + "\n")
+                if output_path:
+                    with open(output_path, "a", encoding="utf-8") as f:
+                        f.write(result.to_jsonl() + "\n")
 
-            progress.advance(task)
+                progress.advance(task)
 
     return all_results
 
