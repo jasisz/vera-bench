@@ -102,6 +102,19 @@ class TestRunPythonBaseline:
         result = run_python_baseline(problem, SOLUTIONS_DIR, tmp_path)
         assert result.run_correct is None
 
+    def test_bool_string_normalization(self, tmp_path):
+        problem = {
+            "id": "VB-T4-003",
+            "entry_point": "is_even",
+            "test_cases": [
+                {"args": [4], "expected": "true"},
+                {"args": [7], "expected": "false"},
+            ],
+        }
+        result = run_python_baseline(problem, SOLUTIONS_DIR, tmp_path)
+        assert result.run_correct is True
+        assert result.tests_passed == 2
+
     def test_missing_file_returns_error(self, tmp_path):
         problem = {
             "id": "VB-T99-999",
