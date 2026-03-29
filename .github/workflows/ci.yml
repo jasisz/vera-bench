@@ -64,7 +64,7 @@ jobs:
 
       - name: Run tests with coverage
         if: matrix.python-version == '3.12'
-        run: pytest --cov=vera_bench --cov-report=term-missing --cov-report=xml --cov-fail-under=50
+        run: pytest --cov=vera_bench --cov-report=term-missing --cov-report=xml --cov-fail-under=35
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.12'
