@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 from rich.console import Console
@@ -12,8 +11,17 @@ from rich.table import Table
 from vera_bench.vera_runner import VeraRunner
 
 REQUIRED_FIELDS = [
-    "id", "tier", "title", "description", "signature", "contracts",
-    "entry_point", "tags", "test_cases", "vera_check_must_pass", "vera_verify_tier1",
+    "id",
+    "tier",
+    "title",
+    "description",
+    "signature",
+    "contracts",
+    "entry_point",
+    "tags",
+    "test_cases",
+    "vera_check_must_pass",
+    "vera_verify_tier1",
 ]
 
 console = Console()
@@ -94,7 +102,9 @@ def validate_problem(
         result["check_pass"] = check.passed
         if not check.passed:
             for diag in check.diagnostics:
-                result["errors"].append(f"check: {diag.get('description', 'unknown error')}")
+                result["errors"].append(
+                    f"check: {diag.get('description', 'unknown error')}"
+                )
     except Exception as e:
         result["errors"].append(f"check error: {e}")
         return result
@@ -112,11 +122,14 @@ def validate_problem(
         expects_tier1 = problem.get("vera_verify_tier1", False)
         if expects_tier1 and verify.tier3_runtime > 0:
             result["errors"].append(
-                f"Expected all Tier 1 but got {verify.tier3_runtime} Tier 3 runtime contracts"
+                f"Expected all Tier 1 but got "
+                f"{verify.tier3_runtime} Tier 3 runtime contracts"
             )
         if not verify.passed:
             for diag in verify.diagnostics:
-                result["errors"].append(f"verify: {diag.get('description', 'unknown error')[:120]}")
+                result["errors"].append(
+                    f"verify: {diag.get('description', 'unknown error')[:120]}"
+                )
     except Exception as e:
         result["errors"].append(f"verify error: {e}")
 
@@ -199,8 +212,12 @@ def run_validation(
             r["id"],
             "[green]OK[/green]" if r["fields_ok"] else "[red]FAIL[/red]",
             "[green]OK[/green]" if r["vera_found"] else "[red]MISS[/red]",
-            "[green]PASS[/green]" if r["check_pass"] else ("[red]FAIL[/red]" if r["check_pass"] is False else "-"),
-            "[green]PASS[/green]" if r["verify_pass"] else ("[red]FAIL[/red]" if r["verify_pass"] is False else "-"),
+            "[green]PASS[/green]"
+            if r["check_pass"]
+            else ("[red]FAIL[/red]" if r["check_pass"] is False else "-"),
+            "[green]PASS[/green]"
+            if r["verify_pass"]
+            else ("[red]FAIL[/red]" if r["verify_pass"] is False else "-"),
             tier_str,
             test_str,
             status,
@@ -215,7 +232,11 @@ def run_validation(
             for err in r["errors"]:
                 console.print(f"  {err}")
 
-    passed = sum(1 for r in results if not r["errors"] and r["fields_ok"] and r["vera_found"] and r["check_pass"])
+    passed = sum(
+        1
+        for r in results
+        if not r["errors"] and r["fields_ok"] and r["vera_found"] and r["check_pass"]
+    )
     total = len(results)
     console.print(f"\n{passed}/{total} problems passed validation.")
 

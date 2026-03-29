@@ -20,8 +20,9 @@ llm = [
     "openai>=1.50",
 ]
 dev = [
-    "pytest",
-    "ruff",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.9",
 ]
 
 [tool.setuptools.packages.find]
@@ -29,3 +30,14 @@ include = ["vera_bench*"]
 
 [project.scripts]
 vera-bench = "vera_bench.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+extend-exclude = ["solutions/"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+

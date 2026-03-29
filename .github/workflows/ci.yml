@@ -30,9 +30,6 @@ jobs:
       - name: Validate all problem definitions and canonical solutions
         run: python scripts/validate_problems.py
 
-      - name: Validate all canonical solutions execute correctly
-        run: python scripts/validate_solutions.py
-
   test:
     permissions:
       contents: read
@@ -40,7 +37,10 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.11", "3.12", "3.13"]
+
+    name: test (${{ matrix.python-version }})${{ matrix.python-version == '3.12' && ' + coverage' || '' }}
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v6
         with:
@@ -59,6 +59,19 @@ jobs:
 
       - name: Run tests
         run: pytest -v
+
+      - name: Run tests with coverage
+        if: matrix.python-version == '3.12'
+        run: pytest --cov=vera_bench --cov-report=term-missing --cov-report=xml --cov-fail-under=50
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          flags: python
+          fail_ci_if_error: false
 
   lint:
     permissions:
@@ -83,6 +96,9 @@ jobs:
       - name: Ruff format check
         run: ruff format --check .
 
+      - name: Security lint (ruff S rules)
+        run: ruff check --select S vera_bench/
+
   security:
     permissions:
       contents: read
@@ -99,3 +115,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  dependency-audit:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies and pip-audit
+        run: pip install -e . && pip install pip-audit
+
+      - name: Audit dependencies for known CVEs
+        run: pip-audit --skip-editable

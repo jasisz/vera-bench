@@ -53,7 +53,9 @@ class RunResult:
 
 
 class VeraRunner:
-    def __init__(self, timeout_check: int = 30, timeout_verify: int = 60, timeout_run: int = 30):
+    def __init__(
+        self, timeout_check: int = 30, timeout_verify: int = 60, timeout_run: int = 30
+    ):
         self.vera = _vera_bin()
         self.timeout_check = timeout_check
         self.timeout_verify = timeout_verify
@@ -111,7 +113,9 @@ class VeraRunner:
             warnings=data.get("warnings", []),
         )
 
-    def run_fn(self, file_path: str | Path, fn_name: str, args: list | None = None) -> RunResult:
+    def run_fn(
+        self, file_path: str | Path, fn_name: str, args: list | None = None
+    ) -> RunResult:
         cmd = [self.vera, "run", str(file_path), "--fn", fn_name]
         if args:
             cmd.append("--")
