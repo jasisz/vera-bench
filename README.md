@@ -44,9 +44,13 @@ The `[llm]` extra installs the Anthropic and OpenAI SDKs. Use `pip install -e .`
 
 ### Install the Vera compiler
 
+The `vera` command must be available on PATH. Install it anywhere into the same virtual environment:
+
 ```bash
-git clone https://github.com/aallan/vera.git ../vera
-pip install -e ../vera
+pip install -e /path/to/vera          # from a local clone
+# or
+pip install git+https://github.com/aallan/vera.git   # directly from GitHub
+
 vera version   # should print vera 0.0.104 or later
 ```
 
