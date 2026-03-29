@@ -27,7 +27,12 @@ def _find_baseline_file(
     lang_dir = solutions_dir / language
     prefix = problem_id.replace("-", "_") + "_"
     matches = list(lang_dir.glob(f"{prefix}*.py"))
-    return matches[0] if len(matches) == 1 else None
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        names = [str(m) for m in matches]
+        raise ValueError(f"Multiple baselines for {prefix} in {lang_dir}: {names}")
+    return None
 
 
 def _build_python_wrapper(
@@ -195,6 +200,11 @@ def run_all_baselines(
     language: str = "python",
 ) -> list[ProblemResult]:
     """Run baselines for all problems. Write JSONL incrementally."""
+    if language != "python":
+        raise NotImplementedError(
+            f"Baseline runner for {language!r} not yet implemented"
+        )
+
     all_results: list[ProblemResult] = []
 
     testable = [p for p in problems if p.get("test_cases")]
