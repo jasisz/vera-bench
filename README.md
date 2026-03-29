@@ -25,27 +25,53 @@ For each problem, we measure:
 
 The same problems are also run in Python and TypeScript as baselines.
 
+## Prerequisites
+
+- Python 3.11+
+- Git
+
+## Installation
+
+```bash
+git clone https://github.com/aallan/vera-bench.git
+cd vera-bench
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[llm]"
+```
+
+The `[llm]` extra installs the Anthropic and OpenAI SDKs. Use `pip install -e .` if you only need validation (no model evaluation).
+
+### Install the Vera compiler
+
+```bash
+git clone https://github.com/aallan/vera.git ../vera
+pip install -e ../vera
+vera version   # should print vera 0.0.104 or later
+```
+
 ## Quick start
 
 ```bash
-# Install
-pip install -e .
-
-# Validate all problems and canonical solutions
+# Validate all 50 problems and canonical solutions
 vera-bench validate
 
-# Run against a model
-ANTHROPIC_API_KEY=sk-ant-... vera-bench run --model claude-sonnet-4-20250514
+# Run benchmark against a model
+export ANTHROPIC_API_KEY=sk-ant-...
+vera-bench run --model claude-sonnet-4-20250514
 
-# Generate a report
-vera-bench report results/latest/
+# Run a single tier
+vera-bench run --model claude-sonnet-4-20250514 --tier 1
+
+# Run a single problem
+vera-bench run --model claude-sonnet-4-20250514 --problem VB-T1-001
+
+# Spec-from-NL mode (agent writes its own contracts)
+vera-bench run --model claude-sonnet-4-20250514 --mode spec-from-nl
+
+# Generate a report from results
+vera-bench report results/
 ```
-
-## Requirements
-
-- Python 3.11+
-- [Vera](https://github.com/aallan/vera) compiler (`pip install git+https://github.com/aallan/vera.git`)
-- An LLM API key (Anthropic, OpenAI, etc.)
 
 ## Prior art
 
