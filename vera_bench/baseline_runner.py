@@ -60,6 +60,9 @@ def _build_python_wrapper(
     for i, tc in enumerate(test_cases):
         args = tc.get("args", [])
         expected = tc.get("expected")
+        # Normalize vera-style bool strings to Python bools
+        if isinstance(expected, str) and expected in ("true", "false"):
+            expected = expected == "true"
         args_repr = repr(args)
         expected_repr = repr(expected)
         lines.extend(
