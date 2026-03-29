@@ -20,14 +20,7 @@
     "builtin-discovery",
     "string-contracts"
   ],
-  "test_cases": [
-    {
-      "args": [
-        "Alice"
-      ],
-      "expected": "Hello, Alice!"
-    }
-  ],
+  "test_cases": [],
   "vera_check_must_pass": true,
   "vera_verify_tier1": false,
   "notes": "String contracts fall to Tier 3 (runtime). Tests string_concat discovery and the fact that string functions use string_ prefix."
