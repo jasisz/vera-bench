@@ -9,7 +9,7 @@ A benchmark for evaluating LLM code generation in [Vera](https://github.com/aall
 
 ## Initial Results
 
-First-cut results from a single run of Claude Sonnet 4 across 50 problems:
+First benchmark results from [VeraBench v0.0.4](https://github.com/aallan/vera-bench/releases/tag/v0.0.4) against [Vera v0.0.104](https://github.com/aallan/vera/releases/tag/v0.0.104) using a single run of [Claude Sonnet 4](https://docs.anthropic.com/en/docs/about-claude/models#claude-4) (`claude-sonnet-4-20250514`) across 50 problems:
 
 | Mode | check@1 | verify@1 | fix@1 | run_correct |
 |------|---------|----------|-------|-------------|
@@ -131,13 +131,7 @@ vera-bench run --model claude-sonnet-4-20250514 --skill-md /path/to/SKILL.md
 
 ## Results
 
-Running `vera-bench report results/` generates `results/summary.md` with a per-model summary:
-
-| Model | check@1 | verify@1 | fix@1 | run_correct | Problems |
-|-------|---------|----------|-------|-------------|----------|
-| claude-sonnet-4-20250514 | 82% | 74% | 45% | 70% | 50 |
-
-Plus per-tier breakdowns and per-problem detail. Each `vera-bench run` writes incremental JSONL results (one line per problem attempt), so partial runs are resumable and always reportable.
+Running `vera-bench report results/` generates `results/summary.md` with a summary table, per-tier breakdowns, and per-problem detail. Each `vera-bench run` writes incremental JSONL results (one line per problem attempt), so partial runs are resumable and always reportable. Results files are in `.gitignore` — they are generated artifacts, not checked in.
 
 ## Prior art
 
