@@ -10,7 +10,8 @@
     ],
     "ensures": [
       "@Nat.result >= 0",
-      "@Nat.result * @Nat.0 <= @Nat.1"
+      "@Nat.result * @Nat.0 <= @Nat.1",
+      "(@Nat.result + 1) * @Nat.0 > @Nat.1"
     ],
     "effects": "pure"
   },
