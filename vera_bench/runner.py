@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -213,7 +214,8 @@ def _evaluate_python_code(
     wrapper_path = work_dir / f"{safe_id}_test{attempt}.py"
     wrapper_path.write_text("\n".join(wrapper_lines), encoding="utf-8")
 
-    # Execute
+    # Execute with restricted cwd; strip API keys from env
+    run_env = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}
     try:
         proc = subprocess.run(  # noqa: S603
             [sys.executable, str(wrapper_path)],
@@ -221,6 +223,8 @@ def _evaluate_python_code(
             text=True,
             timeout=30,
             check=False,
+            cwd=work_dir,
+            env=run_env,
         )
     except subprocess.TimeoutExpired:
         result["tests_total"] = len(test_cases)
@@ -229,9 +233,13 @@ def _evaluate_python_code(
         return result
 
     if proc.returncode != 0:
+        err = proc.stderr[:200] if proc.stderr else "Non-zero exit"
+        # Syntax/import errors are analogous to check failures
+        is_check_fail = "SyntaxError" in err or "ImportError" in err
+        result["check_pass"] = not is_check_fail
         result["tests_total"] = len(test_cases)
         result["run_correct"] = False
-        result["error_message"] = proc.stderr[:200] if proc.stderr else "Non-zero exit"
+        result["error_message"] = err
         return result
 
     try:

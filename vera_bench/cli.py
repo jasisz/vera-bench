@@ -94,6 +94,17 @@ def run(
     from vera_bench.runner import run_benchmark
     from vera_bench.vera_runner import VeraRunner
 
+    # Warn on Vera-specific flags in Python mode
+    if language == "python":
+        if skill_md is not None:
+            console.print(
+                "[yellow]Warning: --skill-md is ignored with --language python[/yellow]"
+            )
+        if mode != "full-spec":
+            console.print(
+                "[yellow]Warning: --mode is ignored with --language python[/yellow]"
+            )
+
     root = _repo_root()
 
     # Load problems
