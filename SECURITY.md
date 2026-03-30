@@ -33,7 +33,7 @@ Issues in the Vera compiler itself should be reported to the [Vera repository](h
 
 The project uses automated security scanning on every push and pull request:
 
-- **`ruff check --select S vera_bench/`** (lint job) — Bandit-equivalent security rules applied to the harness source. Detects patterns such as unsafe `subprocess` use, hardcoded secrets, and insecure HTTP calls. All subprocess calls use `check=False` and `noqa: S603` annotations where the command is trusted: the `vera` binary found via `shutil.which()` in `vera_runner.py`, and `sys.executable` for Python evaluation in `runner.py` and `baseline_runner.py`.
+- **`ruff check --select S vera_bench/`** (lint job) — Bandit-equivalent security rules applied to the harness source. Detects patterns such as unsafe `subprocess` use, hardcoded secrets, and insecure HTTP calls. All subprocess calls use `check=False` and `noqa: S603` annotations where the command is trusted: the `vera` binary found via `shutil.which()` in `vera_runner.py`, `sys.executable` for Python evaluation in `runner.py` and `baseline_runner.py`, and `tsx`/`npx` for TypeScript evaluation.
 - **`pip-audit --skip-editable`** (dependency-audit job) — Scans all installed packages against the [OSV vulnerability database](https://osv.dev) for known CVEs.
 - **Gitleaks** (security job) — Full-history secret scanning on every push and PR.
 
