@@ -131,11 +131,14 @@ def run(
     # Load SKILL.md (only needed for Vera)
     skill_content = ""
     if language == "vera":
+        import hashlib
+
         from vera_bench.prompts import SKILL_MD_URL
 
         source = str(skill_md) if skill_md else SKILL_MD_URL
-        console.print(f"SKILL.md: {source}")
         skill_content = load_skill_md(skill_md)
+        content_hash = hashlib.sha256(skill_content.encode()).hexdigest()[:12]
+        console.print(f"SKILL.md: {source} ({content_hash})")
 
     # Set up output
     if output_dir is None:

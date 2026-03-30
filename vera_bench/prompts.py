@@ -29,8 +29,16 @@ def load_skill_md(source: str | Path | None = None) -> str:
 
     source_str = str(source)
     if source_str.startswith("http"):
-        with urllib.request.urlopen(source_str) as resp:  # noqa: S310
-            return resp.read().decode("utf-8")
+        try:
+            with urllib.request.urlopen(  # noqa: S310
+                source_str, timeout=10
+            ) as resp:
+                return resp.read().decode("utf-8")
+        except (urllib.error.URLError, OSError) as e:
+            raise RuntimeError(
+                f"Failed to fetch SKILL.md from {source_str}: {e}\n"
+                "Use --skill-md to provide a local copy."
+            ) from e
 
     return Path(source).read_text(encoding="utf-8")
 
