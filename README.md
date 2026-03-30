@@ -102,6 +102,12 @@ vera-bench baselines --language typescript
 vera-bench report results/
 ```
 
+The Vera language reference ([SKILL.md](https://veralang.dev/SKILL.md)) is fetched automatically from veralang.dev when running Vera benchmarks. To use a local copy instead (e.g., for testing unreleased language features):
+
+```bash
+vera-bench run --model claude-sonnet-4-20250514 --skill-md /path/to/SKILL.md
+```
+
 ## Results
 
 Running `vera-bench report results/` generates `results/summary.md` with a per-model summary:

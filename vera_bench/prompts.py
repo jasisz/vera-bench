@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import urllib.request
 from pathlib import Path
 
 SYSTEM_PROMPT = (
@@ -13,9 +14,25 @@ _WRITE_INSTRUCTION = (
     "Write a complete Vera function (including requires, ensures, effects, and body). "
 )
 
+SKILL_MD_URL = "https://veralang.dev/SKILL.md"
 
-def load_skill_md(path: str | Path) -> str:
-    return Path(path).read_text(encoding="utf-8")
+
+def load_skill_md(source: str | Path | None = None) -> str:
+    """Load SKILL.md from a URL or local file.
+
+    If source is None, fetches from veralang.dev.
+    If source starts with http, fetches from that URL.
+    Otherwise reads from the local file path.
+    """
+    if source is None:
+        source = SKILL_MD_URL
+
+    source_str = str(source)
+    if source_str.startswith("http"):
+        with urllib.request.urlopen(source_str) as resp:  # noqa: S310
+            return resp.read().decode("utf-8")
+
+    return Path(source).read_text(encoding="utf-8")
 
 
 def _format_contracts(contracts: dict) -> str:

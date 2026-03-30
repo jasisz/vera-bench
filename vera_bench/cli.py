@@ -131,8 +131,10 @@ def run(
     # Load SKILL.md (only needed for Vera)
     skill_content = ""
     if language == "vera":
-        if skill_md is None:
-            skill_md = root / "context" / "SKILL.md"
+        from vera_bench.prompts import SKILL_MD_URL
+
+        source = str(skill_md) if skill_md else SKILL_MD_URL
+        console.print(f"SKILL.md: {source}")
         skill_content = load_skill_md(skill_md)
 
     # Set up output

@@ -9,7 +9,7 @@ VeraBench is a HumanEval/MBPP-style benchmark for [Vera](https://github.com/aall
 - **DESIGN.md** has the design rationale: prior art, tier definitions, key decisions.
 - **ROADMAP.md** has forward-looking milestones and open issues.
 - **BRIEFING.md** is the original bootstrap document (kept for historical reference).
-- **SKILL.md snapshots** in `context/` are the language reference fed to LLMs during evaluation. Use `veralang.dev/SKILL.md` as the canonical source.
+- **SKILL.md** is fetched from `https://veralang.dev/SKILL.md` at runtime (no local cache). Override with `--skill-md /path/to/local/SKILL.md`.
 
 ## Vera installation
 
