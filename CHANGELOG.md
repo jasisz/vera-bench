@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-03-30
+
+### Added
+
+- TypeScript baseline runner (`vera-bench baselines --language typescript`)
+- TypeScript LLM generation (`vera-bench run --model MODEL --language typescript`)
+- TypeScript prompt builder with automatic snake_case → camelCase conversion
+- TypeScript code evaluation via `npx tsx` (Node.js 22+)
+- Node.js 22 added to CI test job for TypeScript support
+- `_snake_to_camel()` utility for entry_point name conversion
+
+### Changed
+
+- `--language` flag now accepts `vera`, `python`, or `typescript`
+- `--language` warning for Vera-specific flags generalised to all non-Vera languages
+- `_find_baseline_file()` now uses language-specific file extensions
+
 ## [0.0.3] - 2026-03-30
 
 ### Added
@@ -61,7 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Claude Sonnet 4: 96% check@1, 96% verify@1, 83% run_correct (50 problems, full-spec mode)
 - Python canonical baselines: 100% run_correct (24 testable problems)
 
-[Unreleased]: https://github.com/aallan/vera-bench/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/aallan/vera-bench/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/aallan/vera-bench/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/aallan/vera-bench/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/aallan/vera-bench/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/aallan/vera-bench/releases/tag/v0.0.1

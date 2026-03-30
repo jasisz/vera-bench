@@ -88,6 +88,30 @@ def build_python_prompt(problem: dict) -> dict:
     }
 
 
+TYPESCRIPT_SYSTEM_PROMPT = (
+    "You are an expert TypeScript programmer. Write correct, concise TypeScript code."
+)
+
+
+def build_typescript_prompt(problem: dict) -> dict:
+    """Build a prompt asking the model to write TypeScript.
+
+    Returns dict with 'system' and 'user' keys.
+    """
+    from vera_bench.baseline_runner import _snake_to_camel
+
+    entry_point = _snake_to_camel(problem["entry_point"])
+    user_msg = (
+        f"{problem['description']}\n\n"
+        f"Write a TypeScript function named `{entry_point}`. "
+        "Output only the TypeScript code, no explanation."
+    )
+    return {
+        "system": TYPESCRIPT_SYSTEM_PROMPT,
+        "user": user_msg,
+    }
+
+
 def build_fix_prompt(original_code: str, error_output: str) -> dict:
     """Build a retry prompt after a failed check.
 

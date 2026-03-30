@@ -543,3 +543,60 @@ class TestRunSingleProblemPython:
         # Only 1 result — no fix attempt for Python
         assert len(results) == 1
         assert client.complete.call_count == 1
+
+
+# === TypeScript generation ===
+
+
+class TestTypescriptPrompt:
+    def test_build_typescript_prompt(self):
+        from vera_bench.prompts import build_typescript_prompt
+
+        problem = {
+            "description": "Compute absolute value",
+            "entry_point": "absolute_value",
+        }
+        result = build_typescript_prompt(problem)
+        assert "absoluteValue" in result["user"]
+        assert "TypeScript" in result["system"]
+
+    def test_typescript_prompt_camel_case(self):
+        from vera_bench.prompts import build_typescript_prompt
+
+        problem = {
+            "description": "Test",
+            "entry_point": "max_of_three",
+        }
+        result = build_typescript_prompt(problem)
+        assert "maxOfThree" in result["user"]
+        assert "max_of_three" not in result["user"]
+
+
+class TestEvaluateTypescriptCode:
+    def test_correct_code(self, tmp_path):
+        from vera_bench.runner import _evaluate_typescript_code
+
+        code = "function absoluteValue(x: number): number { return Math.abs(x); }\n"
+        problem = {
+            "id": "VB-T1-001",
+            "entry_point": "absolute_value",
+            "test_cases": [
+                {"args": [42], "expected": 42},
+                {"args": [-5], "expected": 5},
+            ],
+        }
+        result = _evaluate_typescript_code(code, problem, tmp_path, 1)
+        assert result["check_pass"] is True
+        assert result["run_correct"] is True
+        assert result["tests_passed"] == 2
+
+    def test_no_test_cases(self, tmp_path):
+        from vera_bench.runner import _evaluate_typescript_code
+
+        result = _evaluate_typescript_code(
+            "const x = 1;\n",
+            {"id": "X", "entry_point": "x", "test_cases": []},
+            tmp_path,
+            1,
+        )
+        assert result["run_correct"] is None

@@ -8,7 +8,9 @@ from pathlib import Path
 from vera_bench.baseline_runner import (
     _build_python_wrapper,
     _find_baseline_file,
+    _snake_to_camel,
     run_python_baseline,
+    run_typescript_baseline,
 )
 
 REPO_ROOT = Path(__file__).parent.parent
@@ -135,6 +137,71 @@ class TestRunPythonBaseline:
         d = json.loads(result.to_jsonl())
         assert d["language"] == "python"
         assert d["model"] == "baseline"
+
+
+class TestSnakeToCamel:
+    def test_simple(self):
+        assert _snake_to_camel("absolute_value") == "absoluteValue"
+
+    def test_single_word(self):
+        assert _snake_to_camel("clamp") == "clamp"
+
+    def test_multiple_words(self):
+        assert _snake_to_camel("max_of_three") == "maxOfThree"
+
+    def test_already_camel(self):
+        assert _snake_to_camel("gcd") == "gcd"
+
+
+class TestFindTypeScriptBaseline:
+    def test_finds_tier1(self):
+        path = _find_baseline_file("VB-T1-001", SOLUTIONS_DIR, "typescript")
+        assert path is not None
+        assert path.suffix == ".ts"
+
+    def test_returns_none_for_unknown(self):
+        path = _find_baseline_file("VB-T99-999", SOLUTIONS_DIR, "typescript")
+        assert path is None
+
+
+class TestRunTypescriptBaseline:
+    def test_tier1_absolute_value(self, tmp_path):
+        problem = {
+            "id": "VB-T1-001",
+            "entry_point": "absolute_value",
+            "test_cases": [
+                {"args": [0], "expected": 0},
+                {"args": [42], "expected": 42},
+                {"args": [-42], "expected": 42},
+            ],
+        }
+        result = run_typescript_baseline(problem, SOLUTIONS_DIR, tmp_path)
+        assert result.language == "typescript"
+        assert result.model == "baseline"
+        assert result.check_pass is True
+        assert result.run_correct is True
+        assert result.tests_passed == 3
+
+    def test_tier4_gcd(self, tmp_path):
+        problem = {
+            "id": "VB-T4-002",
+            "entry_point": "gcd",
+            "test_cases": [
+                {"args": [12, 8], "expected": 4},
+                {"args": [7, 0], "expected": 7},
+            ],
+        }
+        result = run_typescript_baseline(problem, SOLUTIONS_DIR, tmp_path)
+        assert result.run_correct is True
+
+    def test_no_test_cases(self, tmp_path):
+        problem = {
+            "id": "VB-T2-001",
+            "entry_point": "sum_array",
+            "test_cases": [],
+        }
+        result = run_typescript_baseline(problem, SOLUTIONS_DIR, tmp_path)
+        assert result.run_correct is None
 
 
 class TestBaselinesCLI:

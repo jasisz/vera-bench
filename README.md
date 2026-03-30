@@ -34,6 +34,7 @@ The same problems are also run in Python and TypeScript as baselines.
 
 * Python 3.11+
 * Git
+* Node.js 22+ *(optional, for TypeScript baselines and generation)*
 
 ## Installation
 
@@ -89,13 +90,15 @@ vera-bench run --model claude-sonnet-4-20250514 --problem VB-T1-001
 # Spec-from-NL mode (agent writes its own contracts)
 vera-bench run --model claude-sonnet-4-20250514 --mode spec-from-nl
 
-# Ask the same model to write Python for comparison
+# Ask the same model to write Python or TypeScript for comparison
 vera-bench run --model claude-sonnet-4-20250514 --language python
+vera-bench run --model claude-sonnet-4-20250514 --language typescript
 
-# Run canonical Python baselines as a reference
+# Run canonical baselines as a reference
 vera-bench baselines
+vera-bench baselines --language typescript
 
-# Generate a combined report (Vera vs Python vs baselines)
+# Generate a combined report
 vera-bench report results/
 ```
 

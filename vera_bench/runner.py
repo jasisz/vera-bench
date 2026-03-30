@@ -22,6 +22,7 @@ from vera_bench.prompts import (
     build_full_spec_prompt,
     build_python_prompt,
     build_spec_from_nl_prompt,
+    build_typescript_prompt,
 )
 from vera_bench.validate import normalize_output
 from vera_bench.vera_runner import VeraRunner
@@ -265,6 +266,138 @@ def _evaluate_python_code(
     return result
 
 
+def _evaluate_typescript_code(
+    code: str,
+    problem: dict,
+    work_dir: Path,
+    attempt: int,
+) -> dict:
+    """Write TypeScript code to a file and run test cases via npx tsx."""
+    from vera_bench.baseline_runner import _snake_to_camel
+
+    entry_point = problem.get("entry_point", "")
+    ts_fn = _snake_to_camel(entry_point)
+    test_cases = problem.get("test_cases", [])
+
+    result: dict = {
+        "check_pass": True,
+        "verify_pass": None,
+        "verify_tier1": 0,
+        "verify_tier3": 0,
+        "run_correct": None,
+        "tests_total": 0,
+        "tests_passed": 0,
+        "error_message": None,
+    }
+
+    if not test_cases:
+        return result
+
+    # Write the generated code with export
+    safe_id = problem["id"].replace("-", "_")
+    code_path = work_dir / f"{safe_id}_attempt{attempt}.ts"
+    # Ensure function is exported
+    export_code = code
+    if f"export function {ts_fn}" not in code:
+        export_code = code.replace(f"function {ts_fn}(", f"export function {ts_fn}(")
+    code_path.write_text(export_code, encoding="utf-8")
+
+    # Build test wrapper
+    wrapper_lines = [
+        f'import {{ {ts_fn} }} from "./{code_path.name}";',
+        "",
+        "const results: Array<{passed: boolean,"
+        " actual?: string, error?: string}> = [];",
+        "",
+    ]
+
+    for i, tc in enumerate(test_cases):
+        if not isinstance(tc, dict):
+            continue
+        args = tc.get("args", [])
+        expected = tc.get("expected")
+        if isinstance(expected, str) and expected in ("true", "false"):
+            expected = expected == "true"
+        args_json = json.dumps(args)
+        expected_json = json.dumps(expected)
+        wrapper_lines.extend(
+            [
+                "try {",
+                f"  const actual_{i} = {ts_fn}(...{args_json});",
+                f"  const passed_{i} = actual_{i} === {expected_json};",
+                f"  results.push({{passed: passed_{i}, actual: String(actual_{i})}});",
+                "} catch (e: any) {",
+                "  results.push({passed: false, error: String(e)});",
+                "}",
+                "",
+            ]
+        )
+
+    wrapper_lines.append("console.log(JSON.stringify(results));")
+    wrapper_path = work_dir / f"{safe_id}_test{attempt}.ts"
+    wrapper_path.write_text("\n".join(wrapper_lines), encoding="utf-8")
+
+    # Find tsx
+    tsx = shutil.which("tsx")
+    if tsx:
+        cmd = [tsx, str(wrapper_path)]
+    else:
+        npx = shutil.which("npx")
+        if npx:
+            cmd = [npx, "tsx", str(wrapper_path)]
+        else:
+            result["check_pass"] = False
+            result["error_message"] = "tsx/npx not found on PATH"
+            return result
+
+    # Execute
+    run_env = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}
+    try:
+        proc = subprocess.run(  # noqa: S603
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+            cwd=work_dir,
+            env=run_env,
+        )
+    except subprocess.TimeoutExpired:
+        result["tests_total"] = len(test_cases)
+        result["run_correct"] = False
+        result["error_message"] = "Execution timed out"
+        return result
+
+    if proc.returncode != 0:
+        err = proc.stderr[:200] if proc.stderr else "Non-zero exit"
+        check_errors = (
+            "SyntaxError",
+            "TypeError",
+            "ReferenceError",
+            "Cannot find module",
+        )
+        is_check_fail = any(e in err for e in check_errors)
+        result["check_pass"] = not is_check_fail
+        result["tests_total"] = len(test_cases)
+        result["run_correct"] = False
+        result["error_message"] = err
+        return result
+
+    try:
+        test_results = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        result["tests_total"] = len(test_cases)
+        result["run_correct"] = False
+        result["error_message"] = f"Bad output: {proc.stdout[:100]}"
+        return result
+
+    passed = sum(1 for r in test_results if r.get("passed"))
+    result["tests_total"] = len(test_cases)
+    result["tests_passed"] = passed
+    result["run_correct"] = passed == len(test_cases)
+    return result
+
+
 def run_single_problem(
     problem: dict,
     client: LLMClient,
@@ -285,6 +418,8 @@ def run_single_problem(
     # Build prompt
     if language == "python":
         prompt = build_python_prompt(problem)
+    elif language == "typescript":
+        prompt = build_typescript_prompt(problem)
     elif mode == "spec-from-nl":
         prompt = build_spec_from_nl_prompt(problem, skill_md)
     else:
@@ -315,6 +450,8 @@ def run_single_problem(
 
     if language == "python":
         eval_result = _evaluate_python_code(code, problem, work_dir, attempt=1)
+    elif language == "typescript":
+        eval_result = _evaluate_typescript_code(code, problem, work_dir, attempt=1)
     else:
         if vera is None:
             raise ValueError("VeraRunner required for language='vera'")

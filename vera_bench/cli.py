@@ -46,7 +46,7 @@ def validate(problems_dir: Path | None, solutions_dir: Path | None):
 @click.option("--problem", default=None, help="Run only this problem ID")
 @click.option(
     "--language",
-    type=click.Choice(["vera", "python"]),
+    type=click.Choice(["vera", "python", "typescript"]),
     default="vera",
     help="Target language for code generation",
 )
@@ -94,15 +94,17 @@ def run(
     from vera_bench.runner import run_benchmark
     from vera_bench.vera_runner import VeraRunner
 
-    # Warn on Vera-specific flags in Python mode
-    if language == "python":
+    # Warn on Vera-specific flags in non-Vera mode
+    if language != "vera":
         if skill_md is not None:
             console.print(
-                "[yellow]Warning: --skill-md is ignored with --language python[/yellow]"
+                f"[yellow]Warning: --skill-md is ignored "
+                f"with --language {language}[/yellow]"
             )
         if mode != "full-spec":
             console.print(
-                "[yellow]Warning: --mode is ignored with --language python[/yellow]"
+                f"[yellow]Warning: --mode is ignored "
+                f"with --language {language}[/yellow]"
             )
 
     root = _repo_root()
@@ -225,7 +227,7 @@ def report(results_dir: Path):
 @main.command()
 @click.option(
     "--language",
-    type=click.Choice(["python"]),
+    type=click.Choice(["python", "typescript"]),
     default="python",
     help="Baseline language to run",
 )

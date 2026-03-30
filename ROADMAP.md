@@ -2,13 +2,13 @@
 
 ## Where we are
 
-**v0.0.3** — 50 problems across 5 tiers, working LLM harness (Anthropic + OpenAI), Python baseline runner, cross-language Python generation comparison. First results: Claude Sonnet 4 achieves 96% check@1, 96% verify@1, 83% run_correct in Vera; 92% run_correct in Python.
+**v0.0.4** — 50 problems across 5 tiers, working LLM harness (Anthropic + OpenAI), Python and TypeScript baseline runners, cross-language generation comparison (Vera, Python, TypeScript). First results: Claude Sonnet 4 achieves 94% check@1, 98% verify@1, 83% run_correct in Vera (full-spec); 88% verify@1, 78% run_correct in spec-from-NL mode; 92% run_correct in Python.
 
 ## Milestone 1: Publication-ready benchmark (current)
 
 - [ ] Run against 5+ models (Claude Opus/Sonnet, GPT-4o, DeepSeek, Gemini)
-- [ ] Run spec-from-NL mode comparison (issue #7)
-- [ ] TypeScript baseline runner
+- [x] Run spec-from-NL mode comparison (issue #7)
+- [x] TypeScript baseline runner and LLM generation
 - [ ] Generate paper-quality figures (matplotlib/seaborn in analysis/)
 - [ ] Hugging Face dataset export
 - [ ] CITATION.cff
@@ -28,7 +28,7 @@
 
 ## Milestone 3: Advanced evaluation modes
 
-- [ ] spec-from-NL mode (agent writes contracts, not just implementation)
+- [x] spec-from-NL mode (agent writes contracts, not just implementation)
 - [ ] Multi-turn agent evaluation (agent gets multiple attempts with error feedback)
 - [ ] Agentic evaluation (agent uses vera check/verify as tools)
 - [ ] Multi-file problems (Tier 5, testing module system)
