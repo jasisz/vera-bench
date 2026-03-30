@@ -83,11 +83,13 @@ def compute_metrics(results: list[dict]) -> BenchmarkMetrics:
             if attempt_2 and attempt_2.get("check_pass"):
                 fix_success += 1
 
-        # verify (on best passing attempt)
+        # verify (on best passing attempt, skip if no verifier ran)
         if best and best.get("check_pass"):
-            verify_eligible += 1
-            if best.get("verify_pass"):
-                verify_pass_count += 1
+            vp = best.get("verify_pass")
+            if vp is not None:
+                verify_eligible += 1
+                if vp:
+                    verify_pass_count += 1
 
         # run_correct (on best passing attempt)
         if best and best.get("check_pass"):
@@ -142,9 +144,11 @@ def _compute_by_tier(
                 if a2 and a2.get("check_pass"):
                     fix_ok += 1
             if best and best.get("check_pass"):
-                verify_elig += 1
-                if best.get("verify_pass"):
-                    verify += 1
+                vp = best.get("verify_pass")
+                if vp is not None:
+                    verify_elig += 1
+                    if vp:
+                        verify += 1
                 rc = best.get("run_correct")
                 if rc is not None:
                     run_elig += 1
