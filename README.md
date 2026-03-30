@@ -9,7 +9,7 @@ A benchmark for evaluating LLM code generation in [Vera](https://github.com/aall
 
 ## Initial Results
 
-First benchmark results from [VeraBench v0.0.4](https://github.com/aallan/vera-bench/releases/tag/v0.0.4) against [Vera v0.0.104](https://github.com/aallan/vera/releases/tag/v0.0.104) using a single run of [Claude Sonnet 4](https://docs.anthropic.com/en/docs/about-claude/models#claude-4) (`claude-sonnet-4-20250514`) across 50 problems:
+First benchmark results from [VeraBench v0.0.4](https://github.com/aallan/vera-bench/releases/tag/v0.0.4) against [Vera v0.0.104](https://github.com/aallan/vera/releases/tag/v0.0.104) using a single run of [Claude Sonnet 4](https://platform.claude.com/docs/en/about-claude/models/overview#claude-4) (`claude-sonnet-4-20250514`) across 50 problems:
 
 | Mode | check@1 | verify@1 | fix@1 | run_correct |
 |------|---------|----------|-------|-------------|
