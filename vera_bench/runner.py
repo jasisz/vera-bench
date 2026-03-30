@@ -320,11 +320,12 @@ def _evaluate_typescript_code(
             expected = expected == "true"
         args_json = json.dumps(args)
         expected_json = json.dumps(expected)
+        # Use == (not ===) so true==1 and false==0 match
         wrapper_lines.extend(
             [
                 "try {",
                 f"  const actual_{i} = {ts_fn}(...{args_json});",
-                f"  const passed_{i} = actual_{i} === {expected_json};",
+                f"  const passed_{i} = actual_{i} == {expected_json};",
                 f"  results.push({{passed: passed_{i}, actual: String(actual_{i})}});",
                 "} catch (e: any) {",
                 "  results.push({passed: false, error: String(e)});",
