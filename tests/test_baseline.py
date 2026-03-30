@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
+
+import pytest
 
 from vera_bench.baseline_runner import (
     _build_python_wrapper,
@@ -164,6 +167,10 @@ class TestFindTypeScriptBaseline:
         assert path is None
 
 
+_has_tsx = shutil.which("tsx") is not None or shutil.which("npx") is not None
+
+
+@pytest.mark.skipif(not _has_tsx, reason="tsx/npx not on PATH")
 class TestRunTypescriptBaseline:
     def test_tier1_absolute_value(self, tmp_path):
         problem = {

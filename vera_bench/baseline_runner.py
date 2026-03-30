@@ -255,7 +255,7 @@ def run_typescript_baseline(
             timestamp=_now(),
         )
 
-    if tsx_path.endswith("npx"):
+    if Path(tsx_path).stem.lower() == "npx":
         cmd = [tsx_path, "tsx", str(wrapper_path)]
     else:
         cmd = [tsx_path, str(wrapper_path)]
