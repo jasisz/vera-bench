@@ -169,7 +169,7 @@ def run(
     # Print summary
     if results:
         metrics = compute_metrics([json.loads(r.to_jsonl()) for r in results])
-        _print_metrics(model, metrics)
+        _print_metrics(model, metrics, language=language)
 
     console.print(f"\nResults written to {output_path}")
 
@@ -180,7 +180,7 @@ def _fmt_rate(rate: float | None) -> str:
     return f"{rate * 100:.0f}%"
 
 
-def _print_metrics(model: str, metrics) -> None:
+def _print_metrics(model: str, metrics, language: str = "vera") -> None:
     """Print a summary metrics table."""
     table = Table(title=f"Results: {model}")
     table.add_column("Metric", style="cyan")
@@ -188,8 +188,9 @@ def _print_metrics(model: str, metrics) -> None:
 
     table.add_row("Problems", str(metrics.total_problems))
     table.add_row("check@1", _fmt_rate(metrics.check_rate))
-    table.add_row("verify@1", _fmt_rate(metrics.verify_rate))
-    table.add_row("fix@1", _fmt_rate(metrics.fix_rate))
+    if language == "vera":
+        table.add_row("verify@1", _fmt_rate(metrics.verify_rate))
+        table.add_row("fix@1", _fmt_rate(metrics.fix_rate))
     table.add_row("run_correct", _fmt_rate(metrics.run_correct_rate))
 
     if metrics.by_tier:

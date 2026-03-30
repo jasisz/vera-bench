@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - `--language python` flag on `vera-bench run` for cross-language LLM comparison
 - Python prompt builder (`build_python_prompt`) — minimal prompt without SKILL.md or contracts
 - Python code evaluation via subprocess with test wrapper
@@ -16,18 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.2] - 2026-03-29
 
 ### Added
+
 - `vera-bench baselines` command — runs canonical Python solutions against test cases
 - `baseline_runner.py` — subprocess-based Python execution with generated test wrappers
 - Cross-language comparison in `vera-bench report` (Vera results alongside Python baselines)
 - Bool string normalisation for test cases (`"true"`/`"false"` → Python `True`/`False`)
 
 ### Fixed
+
 - `run_correct` reporting: shows `-` instead of `0%` when no test cases exist (Tier 2/3)
 - `check_rate` type annotation corrected to `float | None`
 
 ## [0.0.1] - 2026-03-29
 
 ### Added
+
 - LLM runner harness — `vera-bench run --model MODEL` works end-to-end
 - `models.py` — Anthropic and OpenAI API abstraction with lazy imports
 - `runner.py` — generate → check → verify → run → fix pipeline with retry-on-error
@@ -41,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README with installation instructions and quick start
 
 ### First benchmark results
+
 - Claude Sonnet 4: 96% check@1, 96% verify@1, 83% run_correct (50 problems, full-spec mode)
 - Python canonical baselines: 100% run_correct (24 testable problems)
 

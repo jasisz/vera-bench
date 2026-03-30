@@ -234,8 +234,16 @@ def _evaluate_python_code(
 
     if proc.returncode != 0:
         err = proc.stderr[:200] if proc.stderr else "Non-zero exit"
-        # Syntax/import errors are analogous to check failures
-        is_check_fail = "SyntaxError" in err or "ImportError" in err
+        # Errors before test execution are analogous to check failures
+        check_errors = (
+            "SyntaxError",
+            "ImportError",
+            "ModuleNotFoundError",
+            "IndentationError",
+            "TabError",
+            "NameError",
+        )
+        is_check_fail = any(e in err for e in check_errors)
         result["check_pass"] = not is_check_fail
         result["tests_total"] = len(test_cases)
         result["run_correct"] = False
