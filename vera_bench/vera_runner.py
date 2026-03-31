@@ -61,6 +61,24 @@ class VeraRunner:
         self.timeout_verify = timeout_verify
         self.timeout_run = timeout_run
 
+    def version(self) -> str:
+        """Get the vera compiler version string (e.g. '0.0.105')."""
+        try:
+            result = subprocess.run(  # noqa: S603
+                [self.vera, "version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+            # Output is "vera 0.0.105\n"
+            parts = result.stdout.strip().split()
+            if len(parts) >= 2:
+                return parts[1]
+        except Exception:  # noqa: S110
+            pass
+        return "unknown"
+
     def check(self, file_path: str | Path) -> CheckResult:
         cmd = [self.vera, "check", "--json", str(file_path)]
         result = subprocess.run(  # noqa: S603

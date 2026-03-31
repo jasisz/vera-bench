@@ -140,7 +140,20 @@ def run(
         content_hash = hashlib.sha256(skill_content.encode()).hexdigest()[:12]
         console.print(f"SKILL.md: {source} ({content_hash})")
 
-    # Set up output
+    # Versions
+    import vera_bench
+
+    bench_ver = vera_bench.__version__
+
+    # Create clients
+    client = create_client(model)
+    vera = VeraRunner() if language == "vera" else None
+    vera_ver = vera.version() if vera else ""
+
+    # Set up output — dots to hyphens in versions for clean filenames
+    def _ver_slug(v: str) -> str:
+        return v.replace(".", "-")
+
     if output_dir is None:
         output_dir = root / "results"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -149,19 +162,21 @@ def run(
         parts.append(language)
     if language == "vera" and mode != "full-spec":
         parts.append(mode)
+    parts.append(f"bench-{_ver_slug(bench_ver)}")
+    if vera_ver and vera_ver != "unknown":
+        parts.append(f"vera-{_ver_slug(vera_ver)}")
     output_path = output_dir / f"{'-'.join(parts)}.jsonl"
 
     # Truncate stale results from previous runs
     if output_path.exists():
         output_path.unlink()
 
-    # Create clients
-    client = create_client(model)
-    vera = VeraRunner() if language == "vera" else None
-
     console.print(f"Model:    {model}")
     console.print(f"Language: {language}")
     console.print(f"Mode:     {mode}")
+    console.print(f"Bench:    v{bench_ver}")
+    if vera_ver:
+        console.print(f"Vera:     v{vera_ver}")
     console.print(f"Output:   {output_path}\n")
 
     # Run benchmark
@@ -175,6 +190,8 @@ def run(
         output_path=output_path,
         max_tokens=max_tokens,
         keep_temps=keep_temps,
+        bench_version=bench_ver,
+        vera_version=vera_ver,
     )
 
     # Print summary
