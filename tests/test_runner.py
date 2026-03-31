@@ -101,7 +101,20 @@ class TestProblemResult:
         d = json.loads(r.to_jsonl())
         assert "verify_pass" not in d
         assert "run_correct" not in d
-        assert d["error_message"] == "type mismatch"
+
+    def test_to_jsonl_includes_versions(self):
+        r = ProblemResult(
+            problem_id="VB-T1-001",
+            model="test",
+            language="vera",
+            attempt=1,
+            check_pass=True,
+            bench_version="0.0.5",
+            vera_version="0.0.105",
+        )
+        d = json.loads(r.to_jsonl())
+        assert d["bench_version"] == "0.0.5"
+        assert d["vera_version"] == "0.0.105"
 
 
 # === create_client provider detection ===

@@ -105,6 +105,14 @@ class TestVeraRunner:
         assert r.passed is True
         assert r.diagnostics == []
 
+    def test_version(self):
+        from vera_bench.vera_runner import VeraRunner
+
+        runner = VeraRunner()
+        ver = runner.version()
+        assert ver != "unknown"
+        assert "." in ver  # e.g. "0.0.105"
+
     def test_verify_result_fields(self):
         from vera_bench.vera_runner import VerifyResult
 

@@ -70,6 +70,8 @@ class ProblemResult:
     wall_time_s: float = 0.0
     timestamp: str = ""
     error_message: str | None = None
+    bench_version: str = ""
+    vera_version: str = ""
 
     def to_jsonl(self) -> str:
         d = asdict(self)
@@ -411,6 +413,8 @@ def run_single_problem(
     language: str = "vera",
     max_fix_attempts: int = 1,
     max_tokens: int = 4096,
+    bench_version: str = "",
+    vera_version: str = "",
 ) -> list[ProblemResult]:
     """Run the full pipeline for one problem.
 
@@ -445,6 +449,8 @@ def run_single_problem(
                 check_pass=False,
                 error_message=f"API error: {e}",
                 timestamp=_now(),
+                bench_version=bench_version,
+                vera_version=vera_version,
             )
         )
         return results
@@ -470,6 +476,8 @@ def run_single_problem(
             output_tokens=llm_response.output_tokens,
             wall_time_s=llm_response.wall_time_s,
             timestamp=_now(),
+            bench_version=bench_version,
+            vera_version=vera_version,
             **eval_result,
         )
     )
@@ -493,6 +501,8 @@ def run_single_problem(
                     check_pass=False,
                     error_message=f"Fix API error: {e}",
                     timestamp=_now(),
+                    bench_version=bench_version,
+                    vera_version=vera_version,
                 )
             )
             return results
@@ -510,6 +520,8 @@ def run_single_problem(
                 output_tokens=fix_response.output_tokens,
                 wall_time_s=fix_response.wall_time_s,
                 timestamp=_now(),
+                bench_version=bench_version,
+                vera_version=vera_version,
                 **fix_eval,
             )
         )
@@ -528,6 +540,8 @@ def run_benchmark(
     max_fix_attempts: int = 1,
     max_tokens: int = 4096,
     keep_temps: bool = False,
+    bench_version: str = "",
+    vera_version: str = "",
 ) -> list[ProblemResult]:
     """Run the full benchmark across all problems.
 
@@ -550,6 +564,8 @@ def run_benchmark(
                     language=language,
                     max_fix_attempts=max_fix_attempts,
                     max_tokens=max_tokens,
+                    bench_version=bench_version,
+                    vera_version=vera_version,
                 )
                 all_results.extend(problem_results)
 
