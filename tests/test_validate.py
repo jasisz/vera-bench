@@ -173,6 +173,58 @@ class TestPrompts:
         assert "original code" in result["user"]
 
 
+class TestLoadSkillMd:
+    def test_load_from_url(self):
+        from unittest.mock import MagicMock, patch
+
+        from vera_bench.prompts import SKILL_MD_URL, load_skill_md
+
+        mock_resp = MagicMock()
+        mock_resp.read.return_value = b"# Vera SKILL.md\nTest content"
+        mock_resp.__enter__ = lambda s: s
+        mock_resp.__exit__ = MagicMock(return_value=False)
+
+        with patch("urllib.request.urlopen", return_value=mock_resp):
+            content = load_skill_md(SKILL_MD_URL)
+        assert "Vera" in content
+
+    def test_load_from_file(self, tmp_path):
+        from vera_bench.prompts import load_skill_md
+
+        f = tmp_path / "test.md"
+        f.write_text("test content", encoding="utf-8")
+        assert load_skill_md(f) == "test content"
+
+    def test_load_default(self):
+        from unittest.mock import MagicMock, patch
+
+        from vera_bench.prompts import load_skill_md
+
+        mock_resp = MagicMock()
+        mock_resp.read.return_value = b"# Vera"
+        mock_resp.__enter__ = lambda s: s
+        mock_resp.__exit__ = MagicMock(return_value=False)
+
+        with patch("urllib.request.urlopen", return_value=mock_resp):
+            content = load_skill_md()
+        assert "Vera" in content
+
+    def test_bad_url(self):
+        import urllib.error
+        from unittest.mock import patch
+
+        from vera_bench.prompts import load_skill_md
+
+        with (
+            patch(
+                "urllib.request.urlopen",
+                side_effect=urllib.error.URLError("not found"),
+            ),
+            pytest.raises(RuntimeError, match="Failed to fetch"),
+        ):
+            load_skill_md("https://veralang.dev/nonexistent")
+
+
 class TestCLI:
     """Test CLI setup."""
 
