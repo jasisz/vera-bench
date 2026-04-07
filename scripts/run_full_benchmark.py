@@ -126,12 +126,20 @@ def _ensure_api_key(model: str, api_key: str | None) -> dict:
     return env
 
 
-def _run(cmd: list[str], env: dict) -> int:
-    """Run a vera-bench command, streaming output."""
+def _run(cmd: list[str], env: dict, timeout: int = 1800) -> int:
+    """Run a vera-bench command, streaming output.
+
+    Args:
+        timeout: Maximum seconds per target (default 30 minutes).
+    """
     print(f"\n{'=' * 60}")
     print(f"Running: {' '.join(cmd)}")
     print(f"{'=' * 60}\n")
-    result = subprocess.run(cmd, env=env, check=False)
+    try:
+        result = subprocess.run(cmd, env=env, check=False, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        print(f"\nTIMEOUT after {timeout}s: {' '.join(cmd)}")
+        return 1
     return result.returncode
 
 
@@ -232,7 +240,9 @@ def main():
     print(f"\n{'=' * 60}")
     print("Generating report...")
     print(f"{'=' * 60}\n")
-    _run(["vera-bench", "report", "results/"], env)
+    report_rc = _run(["vera-bench", "report", "results/"], env)
+    if report_rc != 0:
+        print(f"\nWarning: report generation failed (exit {report_rc})")
 
     failed = sum(1 for s in results.values() if "FAIL" in s)
     if failed:

@@ -47,7 +47,8 @@ def create_client(model: str) -> LLMClient:
         return MoonshotClient(model)
     raise ValueError(
         f"Unknown model: {model!r}. "
-        "Expected claude-*, gpt-*, o1-*, o3-*, or moonshot/* prefix."
+        "Expected claude-*, anthropic/*, gpt-*, o1-*, o3-*, openai/*, "
+        "or moonshot/* prefix."
     )
 
 
