@@ -145,6 +145,7 @@ class TestOpenAIComplete:
         assert result.text == "world"
         assert result.input_tokens == 200
         assert result.output_tokens == 75
+        assert result.model == "gpt-test"
 
 
 class TestMoonshotComplete:
