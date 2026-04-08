@@ -157,7 +157,7 @@ def run(
     if output_dir is None:
         output_dir = root / "results"
     output_dir.mkdir(parents=True, exist_ok=True)
-    parts = [model]
+    parts = [model.replace("/", "-")]
     if language != "vera":
         parts.append(language)
     if language == "vera" and mode != "full-spec":
