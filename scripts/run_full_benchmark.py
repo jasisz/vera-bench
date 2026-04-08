@@ -40,7 +40,8 @@ MODELS = {
         ("GPT-4.1", "gpt-4.1-2025-04-14"),
     ],
     "moonshot": [
-        ("Kimi K2", "moonshot/kimi-k2"),
+        ("Kimi K2.5", "moonshot/kimi-k2.5"),
+        ("Kimi K2 Turbo", "moonshot/kimi-k2-turbo-preview"),
     ],
 }
 
