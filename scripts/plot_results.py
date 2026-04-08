@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 
 # --- Site palette (from veralang.dev) ---
@@ -222,12 +222,15 @@ def main():
     ax_footer.axis("off")
 
     explanation = (
-        "Vera (full-spec):  The model receives the complete Vera type signature and contracts (requires/ensures/effects) in the\n"
-        "prompt. It only needs to write the function body.\n"
-        "\n"
-        "Vera (spec-from-NL):  The model receives only a natural language description. It must infer the contracts itself, then\n"
-        "write the code. This tests whether the model understands Vera\u2019s type system well enough to author correct specifications\n"
-        "from scratch."
+        "Vera (full-spec):  The model receives the complete Vera\n"
+        "type signature and contracts (requires/ensures/effects)\n"
+        "in the prompt. It only needs to write the function body."
+        "\n\n"
+        "Vera (spec-from-NL):  The model receives only a natural\n"
+        "language description. It must infer the contracts itself,\n"
+        "then write the code. This tests whether the model\n"
+        "understands Vera\u2019s type system well enough to author\n"
+        "correct specifications from scratch."
     )
     ax_footer.text(
         0.0, 0.95, explanation,
