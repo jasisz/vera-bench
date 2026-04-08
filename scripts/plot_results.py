@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,15 +30,17 @@ COLORS = {
 FONT_BODY = "Inter UI"
 FONT_HEADING = "Georgia"  # fallback for DM Serif Display
 
-matplotlib.rcParams.update({
-    "font.family": "sans-serif",
-    "font.sans-serif": [FONT_BODY, "Inter", "Helvetica", "Arial"],
-    "font.size": 11,
-    "text.color": BROWN_700,
-    "axes.labelcolor": BROWN_500,
-    "xtick.color": BROWN_500,
-    "ytick.color": BROWN_500,
-})
+matplotlib.rcParams.update(
+    {
+        "font.family": "sans-serif",
+        "font.sans-serif": [FONT_BODY, "Inter", "Helvetica", "Arial"],
+        "font.size": 11,
+        "text.color": BROWN_700,
+        "axes.labelcolor": BROWN_500,
+        "xtick.color": BROWN_500,
+        "ytick.color": BROWN_500,
+    }
+)
 
 # --- Official report data (v0.0.7, vera 0.0.108) ---
 
@@ -71,27 +75,42 @@ def plot_tier(ax, data: dict, title: str):
     for i, lang in enumerate(languages):
         values = [data[m][lang] for m in models]
         bars = ax.bar(
-            x + i * width, values, width, label=lang, color=COLORS[lang],
-            edgecolor=CREAM, linewidth=0.5,
+            x + i * width,
+            values,
+            width,
+            label=lang,
+            color=COLORS[lang],
+            edgecolor=CREAM,
+            linewidth=0.5,
         )
         for bar, val in zip(bars, values):
             ax.text(
-                bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
-                f"{val}%", ha="center", va="bottom", fontsize=9,
-                fontweight="bold", color=BROWN_700,
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 1,
+                f"{val}%",
+                ha="center",
+                va="bottom",
+                fontsize=9,
+                fontweight="bold",
+                color=BROWN_700,
             )
 
     ax.set_ylabel("run_correct (%)", fontsize=10, color=BROWN_500)
-    ax.set_title(title, fontsize=13, fontweight="bold", pad=12,
-                 fontfamily=FONT_HEADING, color=BROWN_900)
+    ax.set_title(
+        title,
+        fontsize=13,
+        fontweight="bold",
+        pad=12,
+        fontfamily=FONT_HEADING,
+        color=BROWN_900,
+    )
     ax.set_xticks(x + width)
     ax.set_xticklabels(models, fontsize=10)
     ax.set_ylim(0, 115)
     ax.set_yticks([0, 25, 50, 75, 100])
     ax.axhline(y=100, color=BROWN_300, linestyle="--", linewidth=0.5, alpha=0.3)
     _style_ax(ax)
-    ax.legend(loc="lower left", fontsize=9, framealpha=0.8,
-              edgecolor=BROWN_300)
+    ax.legend(loc="lower left", fontsize=9, framealpha=0.8, edgecolor=BROWN_300)
 
 
 def plot_vera_vs_both(ax, flagship: dict, sonnet: dict):
@@ -106,14 +125,26 @@ def plot_vera_vs_both(ax, flagship: dict, sonnet: dict):
 
     colors_py = [GREEN if d >= 0 else RED for d in delta_py]
     bars_py = ax.barh(
-        y - height / 2, delta_py, height, color=colors_py,
-        edgecolor=CREAM, linewidth=0.5, label="vs Python", alpha=0.85,
+        y - height / 2,
+        delta_py,
+        height,
+        color=colors_py,
+        edgecolor=CREAM,
+        linewidth=0.5,
+        label="vs Python",
+        alpha=0.85,
     )
     colors_ts = [GREEN if d >= 0 else RED for d in delta_ts]
     bars_ts = ax.barh(
-        y + height / 2, delta_ts, height, color=colors_ts,
-        edgecolor=CREAM, linewidth=0.5, label="vs TypeScript",
-        alpha=0.55, hatch="//",
+        y + height / 2,
+        delta_ts,
+        height,
+        color=colors_ts,
+        edgecolor=CREAM,
+        linewidth=0.5,
+        label="vs TypeScript",
+        alpha=0.55,
+        hatch="//",
     )
 
     for bar, val in zip(bars_py, delta_py):
@@ -121,35 +152,48 @@ def plot_vera_vs_both(ax, flagship: dict, sonnet: dict):
         ha = "left" if val >= 0 else "right"
         sign = "+" if val > 0 else ""
         ax.text(
-            xpos, bar.get_y() + bar.get_height() / 2,
-            f"{sign}{val}", ha=ha, va="center", fontsize=9,
-            fontweight="bold", color=BROWN_700,
+            xpos,
+            bar.get_y() + bar.get_height() / 2,
+            f"{sign}{val}",
+            ha=ha,
+            va="center",
+            fontsize=9,
+            fontweight="bold",
+            color=BROWN_700,
         )
     for bar, val in zip(bars_ts, delta_ts):
         xpos = val + (1 if val >= 0 else -1)
         ha = "left" if val >= 0 else "right"
         sign = "+" if val > 0 else ""
         ax.text(
-            xpos, bar.get_y() + bar.get_height() / 2,
-            f"{sign}{val}", ha=ha, va="center", fontsize=9,
-            fontweight="bold", color=BROWN_700,
+            xpos,
+            bar.get_y() + bar.get_height() / 2,
+            f"{sign}{val}",
+            ha=ha,
+            va="center",
+            fontsize=9,
+            fontweight="bold",
+            color=BROWN_700,
         )
 
     ax.axvline(x=0, color=BROWN_900, linewidth=1)
     ax.set_yticks(y)
     ax.set_yticklabels(models, fontsize=10)
-    ax.set_xlabel("Vera run_correct minus traditional language (pp)",
-                  fontsize=10, color=BROWN_500)
+    ax.set_xlabel(
+        "Vera run_correct minus traditional language (pp)", fontsize=10, color=BROWN_500
+    )
     ax.set_title(
         "Does Vera beat Python / TypeScript?",
-        fontsize=13, fontweight="bold", pad=12,
-        fontfamily=FONT_HEADING, color=BROWN_900,
+        fontsize=13,
+        fontweight="bold",
+        pad=12,
+        fontfamily=FONT_HEADING,
+        color=BROWN_900,
     )
     _style_ax(ax)
     ax.set_xlim(-22, 22)
     ax.invert_yaxis()
-    ax.legend(loc="lower right", fontsize=9, framealpha=0.8,
-              edgecolor=BROWN_300)
+    ax.legend(loc="lower right", fontsize=9, framealpha=0.8, edgecolor=BROWN_300)
 
 
 def plot_all_modes(ax, flagship: dict, sonnet: dict):
@@ -163,27 +207,42 @@ def plot_all_modes(ax, flagship: dict, sonnet: dict):
     for i, mode in enumerate(modes):
         values = [all_data[m][mode] for m in models]
         bars = ax.bar(
-            x + i * width, values, width, label=mode, color=COLORS[mode],
-            edgecolor=CREAM, linewidth=0.5,
+            x + i * width,
+            values,
+            width,
+            label=mode,
+            color=COLORS[mode],
+            edgecolor=CREAM,
+            linewidth=0.5,
         )
         for bar, val in zip(bars, values):
             ax.text(
-                bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
-                f"{val}", ha="center", va="bottom", fontsize=7,
-                fontweight="bold", color=BROWN_700,
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 1,
+                f"{val}",
+                ha="center",
+                va="bottom",
+                fontsize=7,
+                fontweight="bold",
+                color=BROWN_700,
             )
 
     ax.set_ylabel("run_correct (%)", fontsize=10, color=BROWN_500)
-    ax.set_title("All Models \u00d7 All Modes", fontsize=13, fontweight="bold",
-                 pad=12, fontfamily=FONT_HEADING, color=BROWN_900)
+    ax.set_title(
+        "All Models \u00d7 All Modes",
+        fontsize=13,
+        fontweight="bold",
+        pad=12,
+        fontfamily=FONT_HEADING,
+        color=BROWN_900,
+    )
     ax.set_xticks(x + 1.5 * width)
     ax.set_xticklabels(models, fontsize=8, rotation=15, ha="right")
     ax.set_ylim(0, 115)
     ax.set_yticks([0, 25, 50, 75, 100])
     ax.axhline(y=100, color=BROWN_300, linestyle="--", linewidth=0.5, alpha=0.3)
     _style_ax(ax)
-    ax.legend(loc="lower left", fontsize=8, ncol=2, framealpha=0.8,
-              edgecolor=BROWN_300)
+    ax.legend(loc="lower left", fontsize=8, ncol=2, framealpha=0.8, edgecolor=BROWN_300)
 
 
 def main():
@@ -191,14 +250,23 @@ def main():
     fig.suptitle(
         "VeraBench v0.0.7 \u2014 Vera v0.0.108\n"
         "50 problems \u00d7 6 models \u00d7 4 modes",
-        fontsize=16, fontweight="bold", y=0.98,
-        fontfamily=FONT_HEADING, color=BROWN_900,
+        fontsize=16,
+        fontweight="bold",
+        y=0.98,
+        fontfamily=FONT_HEADING,
+        color=BROWN_900,
     )
 
     gs = fig.add_gridspec(
-        4, 2, hspace=0.35, wspace=0.3,
+        4,
+        2,
+        hspace=0.35,
+        wspace=0.3,
         height_ratios=[1, 1, 1, 0.3],
-        left=0.10, right=0.95, top=0.92, bottom=0.04,
+        left=0.10,
+        right=0.95,
+        top=0.92,
+        bottom=0.04,
     )
 
     # Row 1: tier comparisons
@@ -233,33 +301,54 @@ def main():
         "correct specifications from scratch."
     )
     ax_footer.text(
-        0.0, 0.95, explanation,
+        0.0,
+        0.95,
+        explanation,
         transform=ax_footer.transAxes,
-        fontsize=13, color=BROWN_500, va="top", ha="left",
+        fontsize=13,
+        color=BROWN_500,
+        va="top",
+        ha="left",
         linespacing=1.6,
     )
 
     ax_footer.text(
-        1.0, 0.95, "VeraBench",
+        1.0,
+        0.95,
+        "VeraBench",
         transform=ax_footer.transAxes,
-        fontsize=20, fontweight="bold", color=BROWN_900,
-        va="top", ha="right", fontfamily=FONT_HEADING,
+        fontsize=20,
+        fontweight="bold",
+        color=BROWN_900,
+        va="top",
+        ha="right",
+        fontfamily=FONT_HEADING,
     )
     ax_footer.text(
-        1.0, 0.58, "veralang.dev",
+        1.0,
+        0.58,
+        "veralang.dev",
         transform=ax_footer.transAxes,
-        fontsize=11, color=ORANGE_400, va="top", ha="right",
+        fontsize=11,
+        color=ORANGE_400,
+        va="top",
+        ha="right",
         fontweight="bold",
     )
     ax_footer.text(
-        1.0, 0.30,
+        1.0,
+        0.30,
         "github.com/aallan/vera\ngithub.com/aallan/vera-bench",
         transform=ax_footer.transAxes,
-        fontsize=9, color=BROWN_300, va="top", ha="right",
+        fontsize=9,
+        color=BROWN_300,
+        va="top",
+        ha="right",
         linespacing=1.6,
     )
 
     out = "assets/benchmark_v0.0.7.png"
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=180, facecolor="white")
     print(f"Saved: {out}")
     plt.close()
