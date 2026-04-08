@@ -43,6 +43,12 @@ Results from [VeraBench v0.0.7](https://github.com/aallan/vera-bench/releases/ta
 
 > **Note:** These are single-run results. LLM outputs are non-deterministic — individual problems can flip between pass and fail across runs. The v0.0.4 Claude Sonnet 4 result (83% Vera, 79% TypeScript) shifted to 79%/88% in the v0.0.7 re-run, illustrating this variance. Stable rates will require [pass@k](https://arxiv.org/abs/2107.03374) evaluation with multiple trials. This is early days — 50 problems, one run per model.
 
+### Why this matters: zero training data
+
+No LLM has ever been trained on Vera. There are no Vera examples on GitHub, no Stack Overflow answers, no tutorials — the language was created after these models' training cutoffs. Every token of Vera code in these results was written by a model that learned the language entirely from a single document ([SKILL.md](https://veralang.dev/SKILL.md)) provided in the prompt at evaluation time.
+
+Python and TypeScript, by contrast, are among the most heavily represented languages in LLM training data — billions of lines of code, documentation, and Q&A. The fact that multiple models write *better* Vera than TypeScript despite this asymmetry suggests that language design matters more than training data volume. Vera's mandatory contracts, typed slot references, and explicit effect annotations give models enough structural guardrails that in-context instruction alone is sufficient — no pre-training required.
+
 ## Overview
 
 VeraBench measures whether LLMs write better code in a language designed for them. Vera uses typed slot references instead of variable names, mandatory contracts, and explicit algebraic effects — all features that should make LLM-generated code more verifiable.
