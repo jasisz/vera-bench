@@ -13,7 +13,7 @@ A benchmark for evaluating LLM code generation in [Vera](https://github.com/aall
 
 Results from [VeraBench v0.0.7](https://github.com/aallan/vera-bench/releases/tag/v0.0.7) against [Vera v0.0.108](https://github.com/aallan/vera/releases/tag/v0.0.108) across 50 problems, 6 models, and 4 modes per model.
 
-### run_correct by model (Vera vs Python vs TypeScript)
+### run_correct by model (Vera full-spec vs Python vs TypeScript)
 
 **Flagship tier:**
 
@@ -109,7 +109,7 @@ Afterwards you should be able to print the Vera version from the terminal,
 vera version   
 ```
 
-this should return v0.0.104 or later.
+this should return v0.0.108 or later.
 
 ## Quick start
 
@@ -155,7 +155,7 @@ The Vera language reference ([SKILL.md](https://veralang.dev/SKILL.md)) is fetch
 vera-bench run --model claude-sonnet-4-20250514 --skill-md /path/to/SKILL.md
 ```
 
-## Results
+## Report generation
 
 Running `vera-bench report results/` generates `results/summary.md` with a summary table, per-tier breakdowns, and per-problem detail. Each `vera-bench run` writes incremental JSONL results (one line per problem attempt), so partial runs are resumable and always reportable. Results files are in `.gitignore` — they are generated artifacts, not checked in.
 
