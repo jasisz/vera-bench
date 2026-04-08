@@ -7,26 +7,41 @@
 
 A benchmark for evaluating LLM code generation in [Vera](https://github.com/aallan/vera), a programming language designed for large language models (LLMs) to write.
 
-## Initial Results
+## Results
 
-First benchmark results from [VeraBench v0.0.4](https://github.com/aallan/vera-bench/releases/tag/v0.0.4) against [Vera v0.0.104](https://github.com/aallan/vera/releases/tag/v0.0.104) using a single run of [Claude Sonnet 4](https://platform.claude.com/docs/en/about-claude/models/overview#claude-4) (`claude-sonnet-4-20250514`) across 50 problems:
+![VeraBench v0.0.7 Results](results/benchmark_v0.0.7.png)
 
-| Mode | check@1 | verify@1 | fix@1 | run_correct |
-|------|---------|----------|-------|-------------|
-| Vera (full-spec) | 94% | 98% | 67% | 83% |
-| Vera (spec-from-NL) | 94% | 88% | 33% | 78% |
-| Python (LLM) | 100% | - | - | 92% |
-| TypeScript (LLM) | 100% | - | - | 79% |
-| Python baseline | 100% | - | - | 100% |
-| TypeScript baseline | 100% | - | - | 100% |
+Results from [VeraBench v0.0.7](https://github.com/aallan/vera-bench/releases/tag/v0.0.7) against [Vera v0.0.108](https://github.com/aallan/vera/releases/tag/v0.0.108) across 50 problems, 6 models, and 4 modes per model.
 
-**Vera with contracts provided outperforms TypeScript without them** — 83% vs 79% run_correct — despite being a novel language with zero presence in training data. Vera's mandatory contracts and typed slot references provide enough guardrails to compensate for the model having never seen the language before.
+### run_correct by model (Vera vs Python vs TypeScript)
 
-**Python remains the strongest LLM target** at 92%, which is expected — it's the most represented language in training data. But the gap between Python and Vera (9 points) is remarkably small given that Vera requires De Bruijn indices, mandatory contracts, and explicit effect annotations that the model must learn entirely from the [SKILL.md](https://veralang.dev/SKILL.md) reference provided at evaluation time.
+**Flagship tier:**
 
-**Writing contracts is harder than writing code.** The spec-from-NL mode (where the model must infer its own contracts from the natural language description) drops verify@1 by 10 points and halves fix@1. The implementation itself barely changes — check@1 holds at 94% — but getting the contracts right from NL alone is the real challenge.
+| Model | Vera | Python | TypeScript |
+|-------|------|--------|------------|
+| **Kimi K2.5** | **100%** | 86% | 91% |
+| GPT-4.1 | 91% | 96% | 96% |
+| Claude Opus 4 | 88% | 96% | 96% |
 
-> **Note:** These are single-run results from one model. LLM outputs are non-deterministic — individual problems can flip between pass and fail across runs. Stable rates will require multiple trials ([pass@k](https://arxiv.org/abs/2107.03374) — sample k independent outputs per problem, count as passed if any output succeeds). More models and repeated runs are planned.
+**Sonnet tier:**
+
+| Model | Vera | Python | TypeScript |
+|-------|------|--------|------------|
+| **Kimi K2 Turbo** | **83%** | 88% | 79% |
+| Claude Sonnet 4 | 79% | 96% | 88% |
+| GPT-4o | 78% | 93% | 83% |
+
+### Key findings
+
+**Kimi K2.5 writes perfect Vera code** — 100% run_correct on both full-spec and spec-from-NL modes, beating Python (86%) and TypeScript (91%). This is the first model where Vera is the best language across the board.
+
+**Three models beat TypeScript on Vera.** Kimi K2.5 (+9pp), Kimi K2 Turbo (+4pp), and in our [initial v0.0.4 benchmark](https://github.com/aallan/vera-bench/releases/tag/v0.0.4) Claude Sonnet 4 also beat TypeScript (83% vs 79%). The pattern is consistent across providers: Vera's mandatory contracts and typed slot references provide enough structure to compensate for zero training data.
+
+**Python remains the strongest target for most models.** Claude, OpenAI, and Moonshot all hit 86–96% run_correct on Python. The gap between Python and Vera varies from 0pp (Kimi K2.5 spec-from-NL: both 100%) to 17pp (Claude Sonnet 4: 96% vs 79%).
+
+**Spec-from-NL is the harder test.** When models must infer their own contracts from natural language, performance drops for most models — GPT-4.1 falls from 91% to 50%. But Kimi K2.5 holds at 100%, suggesting it has internalised Vera's type system well enough to author specifications from scratch.
+
+> **Note:** These are single-run results. LLM outputs are non-deterministic — individual problems can flip between pass and fail across runs. The v0.0.4 Claude Sonnet 4 result (83% Vera, 79% TypeScript) shifted to 79%/88% in the v0.0.7 re-run, illustrating this variance. Stable rates will require [pass@k](https://arxiv.org/abs/2107.03374) evaluation with multiple trials. This is early days — 50 problems, one run per model.
 
 ## Overview
 
