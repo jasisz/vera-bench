@@ -18,7 +18,7 @@
 - [x] Strengthen problem descriptions for slot ordering (issue #13)
 - [x] Strengthen postconditions to catch slot-swap bugs (issue #14)
 - [ ] Improve SKILL.md coverage of where blocks (issue #15)
-- [x] Increase test coverage to 85% (issue #5, ongoing — target 90%)
+- [x] Test coverage ([issue #5](https://github.com/aallan/vera-bench/issues/5), ongoing — target 90%) — CI enforces 80% floor via `--cov-fail-under=80` in [ci.yml](.github/workflows/ci.yml), current coverage shown by [![codecov](https://codecov.io/gh/aallan/vera-bench/graph/badge.svg)](https://codecov.io/gh/aallan/vera-bench)
 
 ## Milestone 2: Longitudinal tracking
 
