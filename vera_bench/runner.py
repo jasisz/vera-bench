@@ -435,7 +435,7 @@ def _evaluate_aver_code(
     run_env = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}
     try:
         check_proc = subprocess.run(  # noqa: S603
-            ["aver", "check", str(code_path)],
+            ["aver", "check", str(code_path)],  # noqa: S607
             capture_output=True,
             text=True,
             timeout=30,
@@ -457,7 +457,7 @@ def _evaluate_aver_code(
     # aver verify (typecheck + verify blocks in one step)
     try:
         verify_proc = subprocess.run(  # noqa: S603
-            ["aver", "verify", str(code_path)],
+            ["aver", "verify", str(code_path)],  # noqa: S607
             capture_output=True,
             text=True,
             timeout=30,
@@ -515,7 +515,7 @@ def _evaluate_aver_code(
 
         try:
             run_proc = subprocess.run(  # noqa: S603
-                ["aver", "run", str(test_path)],
+                ["aver", "run", str(test_path)],  # noqa: S607
                 capture_output=True,
                 text=True,
                 timeout=30,

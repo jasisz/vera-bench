@@ -392,7 +392,7 @@ def run_aver_baseline(
 
     try:
         check_result = subprocess.run(  # noqa: S603
-            ["aver", "check", str(baseline_path)],
+            ["aver", "check", str(baseline_path)],  # noqa: S607
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -449,7 +449,7 @@ def run_aver_baseline(
     # aver run — the baseline .av files have main() that prints test outputs
     try:
         run_result = subprocess.run(  # noqa: S603
-            ["aver", "run", str(baseline_path)],
+            ["aver", "run", str(baseline_path)],  # noqa: S607
             capture_output=True,
             text=True,
             timeout=timeout,

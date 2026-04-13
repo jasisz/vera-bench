@@ -170,7 +170,7 @@ def run(
 
         try:
             _av_proc = _sp.run(  # noqa: S603
-                ["aver", "--version"],
+                ["aver", "--version"],  # noqa: S607
                 capture_output=True,
                 text=True,
                 timeout=5,
