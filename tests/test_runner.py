@@ -809,7 +809,14 @@ class TestEvaluateAverCode:
             self._mock_subprocess(returncode=0),  # aver check
             self._mock_subprocess(returncode=0),  # aver verify
         ]
-        code = 'module Test\n    intent = "test"\n\nfn absolute_value(x: Int) -> Int\n    match x < 0\n        true -> 0 - x\n        false -> x\n'
+        code = (
+            "module Test\n"
+            '    intent = "test"\n\n'
+            "fn absolute_value(x: Int) -> Int\n"
+            "    match x < 0\n"
+            "        true -> 0 - x\n"
+            "        false -> x\n"
+        )
         result = _evaluate_aver_code(code, self._sample_problem(), tmp_path, 1)
         assert result["check_pass"] is True
         assert result["verify_pass"] is True
