@@ -2,7 +2,7 @@
 
 ## Where we are
 
-**v0.0.7** — 50 problems across 5 tiers with strengthened postconditions and explicit slot ordering descriptions. Working LLM harness (Anthropic, OpenAI, Moonshot), Python and TypeScript baseline runners, cross-language generation comparison. Full benchmark runner script. SKILL.md fetched from veralang.dev at runtime.
+**v0.0.8** — 50 problems across 5 tiers with strengthened postconditions and explicit slot ordering descriptions. Working LLM harness (Anthropic, OpenAI, Moonshot), Python, TypeScript, and Aver baseline runners, cross-language generation comparison. Full benchmark runner script. SKILL.md and Aver's llms.txt fetched at runtime. Language-neutral problem descriptions (`description_neutral`) for fair cross-language prompting.
 
 ## Milestone 1: Publication-ready benchmark (current)
 
@@ -11,9 +11,13 @@
 - [ ] Refactor `models.py` to a provider registry before adding more (issue [#45](https://github.com/aallan/vera-bench/issues/45))
 - [x] Run spec-from-NL mode comparison (issue #7)
 - [x] TypeScript baseline runner and LLM generation
+- [x] Aver language support — generation, baselines, `description_neutral` field ([PR #48](https://github.com/aallan/vera-bench/pull/48))
 - [x] Generate paper-quality figures — [`scripts/plot_results.py`](scripts/plot_results.py) produces [`assets/benchmark_v0.0.7.png`](assets/benchmark_v0.0.7.png) with veralang.dev site palette (v0.0.7)
 - [ ] Hugging Face dataset export
 - [x] [`CITATION.cff`](CITATION.cff)
+- [ ] MoonBit support (issue [#49](https://github.com/aallan/vera-bench/issues/49))
+- [ ] Tier 5 cross-language methodology (issue [#50](https://github.com/aallan/vera-bench/issues/50))
+- [ ] Timing instrumentation in benchmark script (issue [#51](https://github.com/aallan/vera-bench/issues/51))
 - [ ] Expand to 75+ problems (15 per tier)
 - [x] Strengthen problem descriptions for slot ordering (issue #13)
 - [x] Strengthen postconditions to catch slot-swap bugs (issue #14)

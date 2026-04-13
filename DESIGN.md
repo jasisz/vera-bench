@@ -51,7 +51,7 @@ For each problem × model combination:
 - **fix@1** — Given the error message from a failed first attempt, can the model fix it in one turn?
 - **run_correct** — Does the best passing attempt produce the correct output for all test cases?
 
-Aggregate rates are computed per tier and overall. Cross-language baselines (Python, TypeScript) measure the same problems without Vera's contract system for comparison.
+Aggregate rates are computed per tier and overall. Cross-language baselines (Python, TypeScript, Aver) measure the same problems for comparison. Python and TypeScript are heavily represented in LLM training data; Aver (like Vera) has zero training data, providing a second data point for the zero-training-data thesis.
 
 ---
 
@@ -59,9 +59,13 @@ Aggregate rates are computed per tier and overall. Cross-language baselines (Pyt
 
 **Problem descriptions are natural language, not code stubs.** Unlike HumanEval (which gives a Python function signature + docstring), VeraBench gives a natural language description + the Vera function signature + optionally the contracts.
 
+**Two description fields: `description` and `description_neutral`.** The `description` field contains Vera-specific language (slot references, contract clauses). The `description_neutral` field is language-agnostic and is used for all non-Vera languages (Python, TypeScript, Aver). This is a fairness correction: non-Vera languages should not receive Vera-flavoured prompts. The neutral descriptions are functionally equivalent to spec-from-NL descriptions — the model must infer language-specific constructs from natural language.
+
 **Contracts can be provided or omitted.** For Tiers 1–2, provide the contracts in the prompt (full-spec mode). For Tiers 3–5, a spec-from-NL variant where the agent must also write the contracts.
 
-**The SKILL.md is always provided.** Unlike benchmarks for well-known languages, Vera is not in any model's training data. The SKILL.md is the sole source of language knowledge.
+**The SKILL.md is always provided.** Unlike benchmarks for well-known languages, Vera is not in any model's training data. The SKILL.md is the sole source of language knowledge. Similarly, Aver's `llms.txt` is fetched and provided for Aver benchmarks.
+
+**Comparison languages with zero training data are first-class.** Aver (Haskell-inspired, zero training data) is included alongside Python and TypeScript to test whether the zero-training-data thesis holds for languages beyond Vera. Adding further zero-training-data languages (e.g., MoonBit — see issue [#49](https://github.com/aallan/vera-bench/issues/49)) strengthens the comparison.
 
 **Retry with error feedback is a first-class metric.** Vera's error messages are designed to be agent-friendly (natural language, concrete fix suggestions). This is a competitive advantage worth measuring.
 
@@ -75,6 +79,7 @@ Aggregate rates are computed per tier and overall. Cross-language baselines (Pyt
 - **Don't make Tier 5 problems require network access.** Mock the `Http` and `Inference` effects.
 - **Don't use problems from the vera examples/ or conformance/ directories.** Those are in the repo and therefore in training data. Write fresh problems.
 - **Don't over-engineer.** Ship, get data, iterate.
+- **Don't compare Tier 5 across languages naïvely.** Vera's algebraic effect handlers test fundamentally different constructs than `try/except` in Python. See issue [#50](https://github.com/aallan/vera-bench/issues/50).
 
 ---
 
