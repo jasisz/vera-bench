@@ -14,6 +14,7 @@ verify gcd
     gcd(12, 8)   => 4
     gcd(7, 0)    => 7
     gcd(0, 5)    => 5
+    gcd(0, 0)    => 0
     gcd(100, 75) => 25
 
 fn main() -> Unit

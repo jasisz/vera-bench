@@ -12,6 +12,7 @@ verify safe_head
     safe_head([10, 20, 30]) => 10
     safe_head([42])         => 42
     safe_head([0 - 5, 99])  => 0 - 5
+    safe_head([0 - 1, 2])   => 0 - 1
     safe_head([])           => 0 - 1
 
 fn main() -> Unit

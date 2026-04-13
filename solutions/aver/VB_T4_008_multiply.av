@@ -5,9 +5,9 @@ module Multiply
 
 fn multiply(a: Int, b: Int) -> Int
     ? "Returns a*b using recursive repeated addition."
-    match b
-        0 -> 0
-        _ -> a + multiply(a, b - 1)
+    match b <= 0
+        true  -> 0
+        false -> a + multiply(a, b - 1)
 
 verify multiply
     multiply(7, 6) => 42

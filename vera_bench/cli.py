@@ -177,6 +177,13 @@ def run(
                 timeout=5,
                 check=False,
             )
+            if _av_proc.returncode != 0:
+                console.print(
+                    "[red]Error: aver --version failed "
+                    f"(exit {_av_proc.returncode}). "
+                    "Check your aver installation.[/red]"
+                )
+                raise SystemExit(1)
             aver_ver = _av_proc.stdout.strip().replace("aver ", "")
         except (FileNotFoundError, _sp.TimeoutExpired):
             console.print(

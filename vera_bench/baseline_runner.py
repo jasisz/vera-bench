@@ -566,10 +566,6 @@ def run_all_baselines(
         runner = run_typescript_baseline
     elif language == "aver":
         runner = run_aver_baseline
-    else:
-        raise NotImplementedError(
-            f"Baseline runner for {language!r} not yet implemented"
-        )
 
     all_results: list[ProblemResult] = []
 

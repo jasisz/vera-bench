@@ -466,7 +466,7 @@ def _evaluate_aver_code(
         )
         result["verify_pass"] = verify_proc.returncode == 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
-        result["verify_pass"] = None
+        result["verify_pass"] = False
 
     result["check_pass"] = True
 

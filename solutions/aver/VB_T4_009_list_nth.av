@@ -5,11 +5,13 @@ module ListNth
 
 fn list_nth(xs: List<Int>, index: Int) -> Int
     ? "Returns the element at index, or -1 if out of bounds."
-    match xs
-        [] -> 0 - 1
-        [h, ..t] -> match index
-            0 -> h
-            _ -> list_nth(t, index - 1)
+    match index < 0
+        true -> 0 - 1
+        false -> match xs
+            [] -> 0 - 1
+            [h, ..t] -> match index
+                0 -> h
+                _ -> list_nth(t, index - 1)
 
 verify list_nth
     list_nth([10, 20, 30], 0) => 10

@@ -1,5 +1,6 @@
 module Distance
     intent = "Computes the absolute distance between two integers."
+    exposes [distance]
 
 fn distance(a: Int, b: Int) -> Int
     ? "Returns |a - b|."

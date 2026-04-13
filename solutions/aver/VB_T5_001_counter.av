@@ -4,7 +4,7 @@ module Counter
 
 fn count(n: Int, target: Int) -> Int
     ? "Increments n until it reaches target."
-    match n == target
+    match n >= target
         true  -> n
         false -> count(n + 1, target)
 

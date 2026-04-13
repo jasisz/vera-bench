@@ -24,6 +24,7 @@ fn state_max(n: Int) -> Int
 verify max_step
     max_step(3, 5, 2) => 5
     max_step(1, 1, 0) => 1
+    max_step(2, 5, 3) => 5
 
 verify max_loop
     max_loop(1, 5, 0) => 5
@@ -34,6 +35,7 @@ verify state_max
     state_max(5)  => 5
     state_max(1)  => 1
     state_max(10) => 10
+    state_max(0)  => 0
 
 fn main() -> Unit
     ! [Console.print]
