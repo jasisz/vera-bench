@@ -70,13 +70,14 @@ For each problem, we measure:
 - **fix@1** — Given the error message, can the model fix it in one turn?
 - **run_correct** — Does execution produce the correct output?
 
-The same problems are also run in Python and TypeScript as baselines.
+The same problems are also run in Python, TypeScript, and [Aver](https://github.com/jasisz/aver) as baselines. Aver is a Haskell-inspired language with zero LLM training data, providing a second data point alongside Vera for the zero-training-data thesis.
 
 ## Prerequisites
 
 * Python 3.11+
 * Git
 * Node.js 22+ *(optional, for TypeScript baselines and generation)*
+* [Aver](https://github.com/jasisz/aver) *(optional, for Aver baselines and generation)*
 
 ## Installation
 
@@ -132,18 +133,20 @@ vera-bench run --model claude-sonnet-4-20250514 --problem VB-T1-001
 # Spec-from-NL mode (agent writes its own contracts)
 vera-bench run --model claude-sonnet-4-20250514 --mode spec-from-nl
 
-# Ask the same model to write Python or TypeScript for comparison
+# Ask the same model to write Python, TypeScript, or Aver for comparison
 vera-bench run --model claude-sonnet-4-20250514 --language python
 vera-bench run --model claude-sonnet-4-20250514 --language typescript
+vera-bench run --model claude-sonnet-4-20250514 --language aver
 
 # Run canonical baselines as a reference
 vera-bench baselines
 vera-bench baselines --language typescript
+vera-bench baselines --language aver
 
 # Generate a combined report
 vera-bench report results/
 
-# Or run the full benchmark suite (all 6 targets) with one command
+# Or run the full benchmark suite (all 8 targets) with one command
 python scripts/run_full_benchmark.py
 ```
 

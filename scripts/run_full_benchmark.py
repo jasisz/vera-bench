@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the full VeraBench benchmark suite (all 6 targets).
+"""Run the full VeraBench benchmark suite (all 8 targets).
 
 Usage:
   # Interactive mode — prompts for model and API key
@@ -13,13 +13,15 @@ Usage:
   ANTHROPIC_API_KEY=sk-ant-... \
     python scripts/run_full_benchmark.py --model claude-sonnet-4-20250514
 
-Runs all 6 targets:
+Runs all 8 targets:
   1. Vera full-spec
   2. Vera spec-from-NL
   3. Python LLM generation
   4. TypeScript LLM generation
-  5. Python baselines
-  6. TypeScript baselines
+  5. Aver LLM generation
+  6. Python baselines
+  7. TypeScript baselines
+  8. Aver baselines
 """
 
 from __future__ import annotations
@@ -206,6 +208,17 @@ def main():
                 "typescript",
             ],
         ),
+        (
+            "Aver LLM",
+            [
+                "vera-bench",
+                "run",
+                "--model",
+                model,
+                "--language",
+                "aver",
+            ],
+        ),
     ]
 
     if not args.skip_baselines:
@@ -219,6 +232,15 @@ def main():
                         "baselines",
                         "--language",
                         "typescript",
+                    ],
+                ),
+                (
+                    "Aver baselines",
+                    [
+                        "vera-bench",
+                        "baselines",
+                        "--language",
+                        "aver",
                     ],
                 ),
             ]

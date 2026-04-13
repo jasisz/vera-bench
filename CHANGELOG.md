@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Vera-flavoured `description`. This improves fairness for non-Vera languages
   but means results are not directly comparable to v0.0.7 runs which used
   Vera-specific descriptions.
+- README: added Aver as a comparison language, updated CLI examples
+- CLAUDE.md: added `description_neutral` documentation, comparison language guide, Aver section, Tier 5 caveat
+- DESIGN.md: added `description_neutral` rationale, zero-training-data comparison languages, Tier 5 methodology note
+- CONTRIBUTING.md: added "Adding a New Comparison Language" guide with step-by-step checklist
+- ROADMAP.md: added Aver milestone, MoonBit (#49), Tier 5 methodology (#50), timing (#51) items
 
 ## [0.0.7] - 2026-04-07
 
