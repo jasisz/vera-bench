@@ -325,6 +325,17 @@ def baselines(language: str, output_dir: Path | None):
     if output_path.exists():
         output_path.unlink()
 
+    # Fail fast if aver is not on PATH
+    if language == "aver":
+        import shutil as _shutil
+
+        if _shutil.which("aver") is None:
+            console.print(
+                "[red]Error: aver not found on PATH. "
+                "Install with: cargo install aver-lang[/red]"
+            )
+            raise SystemExit(1)
+
     console.print(f"Language: {language}")
     console.print(f"Output:   {output_path}\n")
 

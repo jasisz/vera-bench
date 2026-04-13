@@ -574,7 +574,8 @@ def _aver_literal(value) -> str:
     if isinstance(value, float):
         return str(value)
     if isinstance(value, str):
-        return f'"{value}"'
+        escaped = value.replace('\\', '\\\\').replace('"', '\\"')
+        return f'"{escaped}"'
     if isinstance(value, list):
         items = ", ".join(_aver_literal(v) for v in value)
         return f"[{items}]"
@@ -614,10 +615,12 @@ def run_single_problem(
         prompt = build_python_prompt(problem)
     elif language == "typescript":
         prompt = build_typescript_prompt(problem)
-    elif mode == "spec-from-nl":
+    elif language == "vera" and mode == "spec-from-nl":
         prompt = build_spec_from_nl_prompt(problem, skill_md)
-    else:
+    elif language == "vera":
         prompt = build_full_spec_prompt(problem, skill_md)
+    else:
+        raise ValueError(f"Unknown language: {language!r}")
 
     # Attempt 1: generate
     try:
@@ -650,10 +653,12 @@ def run_single_problem(
         eval_result = _evaluate_python_code(code, problem, work_dir, attempt=1)
     elif language == "typescript":
         eval_result = _evaluate_typescript_code(code, problem, work_dir, attempt=1)
-    else:
+    elif language == "vera":
         if vera is None:
             raise ValueError("VeraRunner required for language='vera'")
         eval_result = _evaluate_code(code, problem, vera, work_dir, attempt=1)
+    else:
+        raise ValueError(f"Unknown language: {language!r}")
 
     results.append(
         ProblemResult(
@@ -671,8 +676,16 @@ def run_single_problem(
         )
     )
 
-    # Attempt 2: fix from error (Aver — has aver check step)
-    if language == "aver" and not eval_result["check_pass"] and max_fix_attempts > 0:
+    # Attempt 2: fix from error (Aver — only on actual check failures,
+    # not tooling errors like "aver not found" or timeouts)
+    _aver_error = eval_result.get("error_message") or ""
+    _is_tooling_error = "aver not found" in _aver_error or "timed out" in _aver_error
+    if (
+        language == "aver"
+        and not eval_result["check_pass"]
+        and max_fix_attempts > 0
+        and not _is_tooling_error
+    ):
         fix_prompt = build_aver_fix_prompt(
             code, eval_result.get("error_message", ""), skill_md
         )

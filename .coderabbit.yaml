@@ -48,10 +48,12 @@ reviews:
 
   path_filters:
     - "!**/*.vera"
+    - "!**/*.av"
     - "!context/**"
     - "!results/**/*.jsonl"
     - "!solutions/python/**"
     - "!solutions/typescript/**"
+    - "!solutions/aver/**"
 
   path_instructions:
     - path: "vera_bench/**/*.py"

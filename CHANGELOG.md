@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Aver language support: generation, checking, execution, and fix-from-error
+- `description_neutral` field on all 50 problem JSONs for language-neutral prompts
+- Aver baseline runner (`vera-bench baselines --language aver`)
+
+### Changed
+
+- Python and TypeScript prompts now use `description_neutral` instead of
+  Vera-flavoured `description`. This improves fairness for non-Vera languages
+  but means results are not directly comparable to v0.0.7 runs which used
+  Vera-specific descriptions.
+
 ## [0.0.7] - 2026-04-07
 
 ### Added

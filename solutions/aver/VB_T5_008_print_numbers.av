@@ -11,9 +11,9 @@ fn print_and_continue(i: Int, n: Int) -> Unit
 fn print_loop(i: Int, n: Int) -> Unit
     ? "Recurses from i to n, printing each integer."
     ! [Console.print]
-    match i <= n
+    match i < n
         true  -> print_and_continue(i, n)
-        false -> Console.print("")
+        false -> Console.print(n)
 
 fn print_numbers(n: Int) -> Unit
     ? "Prints 1 through n on separate lines."

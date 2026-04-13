@@ -12,7 +12,13 @@ import pytest
 
 from vera_bench.metrics import compute_metrics
 from vera_bench.models import LLMResponse, create_client
-from vera_bench.runner import ProblemResult, extract_code, extract_vera_code
+from vera_bench.runner import (
+    ProblemResult,
+    _aver_literal,
+    _strip_aver_main,
+    extract_code,
+    extract_vera_code,
+)
 
 # === extract_vera_code ===
 
@@ -411,6 +417,46 @@ class TestCLICommands:
 # === Python generation ===
 
 
+class TestNeutralDescription:
+    def test_returns_neutral_when_present(self):
+        from vera_bench.prompts import _neutral_description
+
+        problem = {
+            "description": "Vera-flavoured description",
+            "description_neutral": "Neutral description",
+        }
+        assert _neutral_description(problem) == "Neutral description"
+
+    def test_falls_back_to_original(self):
+        from vera_bench.prompts import _neutral_description
+
+        problem = {"description": "Original description"}
+        assert _neutral_description(problem) == "Original description"
+
+    def test_falls_back_on_empty_string(self):
+        from vera_bench.prompts import _neutral_description
+
+        problem = {"description": "Original", "description_neutral": ""}
+        assert _neutral_description(problem) == "Original"
+
+
+class TestLoadAverLlmsTxt:
+    def test_loads_from_file(self, tmp_path):
+        from vera_bench.prompts import load_aver_llms_txt
+
+        txt_file = tmp_path / "llms.txt"
+        txt_file.write_text("# Aver spec\nfn foo() -> Int", encoding="utf-8")
+        content = load_aver_llms_txt(txt_file)
+        assert "Aver spec" in content
+        assert "fn foo" in content
+
+    def test_raises_on_missing_file(self):
+        from vera_bench.prompts import load_aver_llms_txt
+
+        with pytest.raises(FileNotFoundError):
+            load_aver_llms_txt("/nonexistent/llms.txt")
+
+
 class TestPythonPrompt:
     def test_build_python_prompt(self):
         from vera_bench.prompts import build_python_prompt
@@ -664,6 +710,78 @@ class TestEvaluatePythonErrors:
         assert result["check_pass"] is True
         assert result["run_correct"] is False
         assert result["tests_passed"] == 0
+
+
+class TestAverLiteral:
+    def test_positive_int(self):
+        assert _aver_literal(42) == "42"
+
+    def test_zero(self):
+        assert _aver_literal(0) == "0"
+
+    def test_negative_int(self):
+        assert _aver_literal(-5) == "(0 - 5)"
+
+    def test_bool_true(self):
+        assert _aver_literal(True) == "true"
+
+    def test_bool_false(self):
+        assert _aver_literal(False) == "false"
+
+    def test_string(self):
+        assert _aver_literal("hello") == '"hello"'
+
+    def test_string_with_quotes(self):
+        assert _aver_literal('say "hi"') == '"say \\"hi\\""'
+
+    def test_string_with_backslash(self):
+        assert _aver_literal("a\\b") == '"a\\\\b"'
+
+    def test_float(self):
+        assert _aver_literal(3.14) == "3.14"
+
+    def test_list(self):
+        assert _aver_literal([1, 2, 3]) == "[1, 2, 3]"
+
+    def test_nested_list(self):
+        assert _aver_literal([[1], [2]]) == "[[1], [2]]"
+
+    def test_empty_list(self):
+        assert _aver_literal([]) == "[]"
+
+
+class TestStripAverMain:
+    def test_removes_main(self):
+        code = (
+            "fn foo(x: Int) -> Int\n"
+            "    x + 1\n"
+            "\n"
+            "fn main() -> Unit\n"
+            "    ! [Console.print]\n"
+            "    Console.print(foo(5))\n"
+        )
+        result = _strip_aver_main(code)
+        assert "fn foo" in result
+        assert "fn main" not in result
+        assert "Console.print(foo(5))" not in result
+
+    def test_keeps_code_without_main(self):
+        code = "fn foo(x: Int) -> Int\n    x + 1\n"
+        result = _strip_aver_main(code)
+        assert "fn foo" in result
+
+    def test_preserves_code_after_main(self):
+        code = (
+            "fn main() -> Unit\n"
+            "    ! [Console.print]\n"
+            "    Console.print(42)\n"
+            "\n"
+            "fn bar(x: Int) -> Int\n"
+            "    x * 2\n"
+        )
+        result = _strip_aver_main(code)
+        assert "fn main" not in result
+        assert "fn bar" in result
 
 
 class TestRunBenchmarkIntegration:
