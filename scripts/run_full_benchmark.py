@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the full VeraBench benchmark suite (all 6 targets).
+"""Run the full VeraBench benchmark suite (all 8 targets).
 
 Usage:
   # Interactive mode — prompts for model and API key

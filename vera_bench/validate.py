@@ -15,6 +15,7 @@ REQUIRED_FIELDS = [
     "tier",
     "title",
     "description",
+    "description_neutral",
     "signature",
     "contracts",
     "entry_point",
