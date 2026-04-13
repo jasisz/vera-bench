@@ -28,9 +28,13 @@ from __future__ import annotations
 
 import argparse
 import getpass
+import json
 import os
 import subprocess
 import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
 
 MODELS = {
     "anthropic": [
@@ -129,24 +133,48 @@ def _ensure_api_key(model: str, api_key: str | None) -> dict:
     return env
 
 
-def _run(cmd: list[str], env: dict, timeout: int = 3600) -> int:
+def _format_duration(seconds: float) -> str:
+    """Format seconds as human-readable duration."""
+    m, s = divmod(int(seconds), 60)
+    h, m = divmod(m, 60)
+    if h:
+        return f"{h}h {m:02d}m {s:02d}s"
+    if m:
+        return f"{m}m {s:02d}s"
+    return f"{s}s"
+
+
+def _run(cmd: list[str], env: dict, timeout: int = 3600) -> tuple[int, float]:
     """Run a vera-bench command, streaming output.
 
     Args:
         timeout: Maximum seconds per target (default 60 minutes).
+
+    Returns:
+        Tuple of (return_code, elapsed_seconds).
     """
+    start_ts = datetime.now(timezone.utc)
     print(f"\n{'=' * 60}")
     print(f"Running: {' '.join(cmd)}")
+    print(f"Started: {start_ts.strftime('%H:%M:%S UTC')}")
     print(f"{'=' * 60}\n")
+    t0 = time.monotonic()
     try:
         result = subprocess.run(cmd, env=env, check=False, timeout=timeout)
     except subprocess.TimeoutExpired:
-        print(f"\nTIMEOUT after {timeout}s: {' '.join(cmd)}")
-        return 1
-    return result.returncode
+        elapsed = time.monotonic() - t0
+        finish_ts = datetime.now(timezone.utc)
+        print(f"\nTIMEOUT after {_format_duration(elapsed)}")
+        print(f"Timed out at: {finish_ts.strftime('%H:%M:%S UTC')}")
+        return 1, elapsed
+    elapsed = time.monotonic() - t0
+    finish_ts = datetime.now(timezone.utc)
+    print(f"\nCompleted in {_format_duration(elapsed)}")
+    print(f"Finished: {finish_ts.strftime('%H:%M:%S UTC')}")
+    return result.returncode, elapsed
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run the full VeraBench benchmark suite"
     )
@@ -247,27 +275,57 @@ def main():
         )
 
     # Run all targets
-    results = {}
+    results: dict[str, dict] = {}
+    run_start_ts = datetime.now(timezone.utc)
+    run_start = time.monotonic()
     for name, cmd in targets:
-        rc = _run(cmd, env)
-        results[name] = "PASS" if rc == 0 else f"FAIL (exit {rc})"
+        rc, elapsed = _run(cmd, env)
+        results[name] = {
+            "status": "PASS" if rc == 0 else f"FAIL (exit {rc})",
+            "elapsed": elapsed,
+        }
+    total_elapsed = time.monotonic() - run_start
 
     # Summary
     print(f"\n{'=' * 60}")
     print("Summary")
     print(f"{'=' * 60}\n")
-    for name, status in results.items():
-        print(f"  {name}: {status}")
+    name_width = max(len(n) for n in results)
+    for name, info in results.items():
+        duration = _format_duration(info["elapsed"])
+        print(f"  {name:<{name_width}}  {info['status']:<16} {duration:>12}")
+    total_dur = _format_duration(total_elapsed)
+    print(f"\n  {'Total':<{name_width}}  {'':<16} {total_dur:>12}")
+
+    # Write timing.json
+    timing_path = Path("results") / "timing.json"
+    timing_path.parent.mkdir(parents=True, exist_ok=True)
+    run_end_ts = datetime.now(timezone.utc)
+    timing_data = {
+        "model": model,
+        "started_at": run_start_ts.isoformat(),
+        "finished_at": run_end_ts.isoformat(),
+        "total_seconds": round(total_elapsed, 1),
+        "targets": {
+            name: {
+                "status": info["status"],
+                "seconds": round(info["elapsed"], 1),
+            }
+            for name, info in results.items()
+        },
+    }
+    timing_path.write_text(json.dumps(timing_data, indent=2) + "\n", encoding="utf-8")
+    print(f"\nTiming written to {timing_path}")
 
     # Generate report
     print(f"\n{'=' * 60}")
     print("Generating report...")
     print(f"{'=' * 60}\n")
-    report_rc = _run(["vera-bench", "report", "results/"], env)
+    report_rc, _ = _run(["vera-bench", "report", "results/"], env)
     if report_rc != 0:
         print(f"\nWarning: report generation failed (exit {report_rc})")
 
-    failed = sum(1 for s in results.values() if "FAIL" in s)
+    failed = sum(1 for info in results.values() if "FAIL" in info["status"])
     if failed:
         print(f"\n{failed} target(s) failed.")
         return 1
