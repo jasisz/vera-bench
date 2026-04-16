@@ -20,6 +20,6 @@
     {"args": ["", "xyz"], "expected": 3}
   ],
   "vera_check_must_pass": true,
-  "vera_verify_tier1": false,
-  "notes": "Tests composing string_length with addition. String operations fall to Tier 3 runtime."
+  "vera_verify_tier1": true,
+  "notes": "Tests composing string_length with addition. Contracts are trivial (ensures(true)) so Z3-verifiable at Tier 1. String operations are in the body only, not in contracts."
 }

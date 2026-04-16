@@ -21,5 +21,5 @@
   ],
   "vera_check_must_pass": true,
   "vera_verify_tier1": true,
-  "notes": "Tests discovery of string_ends_with."
+  "notes": "Tests discovery of string_ends_with. The slot ordering is: @String.0=suffix (nearest/rightmost), @String.1=haystack. But string_ends_with takes (haystack, suffix), so the call must be string_ends_with(@String.1, @String.0)."
 }

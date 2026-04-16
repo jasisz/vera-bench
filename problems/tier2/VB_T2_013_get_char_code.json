@@ -20,6 +20,6 @@
     {"args": ["abc", 2], "expected": 99}
   ],
   "vera_check_must_pass": true,
-  "vera_verify_tier1": false,
-  "notes": "Tests discovery of string_char_code. String operations fall to Tier 3 runtime."
+  "vera_verify_tier1": true,
+  "notes": "Tests discovery of string_char_code. Contracts are trivial (ensures(true)) so Z3-verifiable at Tier 1. String operations are in the body only, not in contracts."
 }
