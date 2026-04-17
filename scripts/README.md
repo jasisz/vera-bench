@@ -352,7 +352,8 @@ python scripts/plot_results.py --version 0.0.7
 ```
 
 The canonical historical snapshot for v0.0.7 lives at its GitHub tag URL:
-<https://github.com/aallan/vera-bench/blob/v0.0.7/assets/benchmark_v0.0.7.png>.
+<https://github.com/aallan/vera-bench/releases/download/v0.0.7/benchmark_v0.0.7.png>
+(attached as a release asset — durable across tag or repo changes).
 
 ### Reproducibility
 
