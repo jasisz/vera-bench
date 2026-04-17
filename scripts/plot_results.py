@@ -81,9 +81,9 @@ matplotlib.rcParams.update(
 
 @dataclass(frozen=True)
 class ModelSpec:
-    display: str       # Shown on the chart (e.g. "Claude Opus 4")
-    file_prefix: str   # Model-id portion of result filename
-    tier: str          # "flagship" or "sonnet" — controls chart layout
+    display: str  # Shown on the chart (e.g. "Claude Opus 4")
+    file_prefix: str  # Model-id portion of result filename
+    tier: str  # "flagship" or "sonnet" — controls chart layout
 
 
 MODELS: list[ModelSpec] = [
@@ -102,11 +102,11 @@ MODELS: list[ModelSpec] = [
 # Vera-based modes have a trailing "-vera-{compiler}" suffix in the filename;
 # other languages do not (see _find_result_file).
 MODE_PATTERNS: dict[str, str] = {
-    "Vera": "",                    # {prefix}-bench-{v}-vera-*.jsonl
-    "Vera NL": "spec-from-nl-",    # {prefix}-spec-from-nl-bench-{v}-vera-*.jsonl
-    "Python": "python-",           # {prefix}-python-bench-{v}.jsonl
-    "TypeScript": "typescript-",   # {prefix}-typescript-bench-{v}.jsonl
-    "Aver": "aver-",               # {prefix}-aver-bench-{v}-aver-*.jsonl
+    "Vera": "",  # {prefix}-bench-{v}-vera-*.jsonl
+    "Vera NL": "spec-from-nl-",  # {prefix}-spec-from-nl-bench-{v}-vera-*.jsonl
+    "Python": "python-",  # {prefix}-python-bench-{v}.jsonl
+    "TypeScript": "typescript-",  # {prefix}-typescript-bench-{v}.jsonl
+    "Aver": "aver-",  # {prefix}-aver-bench-{v}-aver-*.jsonl
 }
 
 # Modes that have a trailing "-vera-{compiler}" or "-aver-{compiler}" suffix.
@@ -134,9 +134,7 @@ def _find_result_file(
     ver = _version_to_filename(version)
     compiler_tag = _COMPILER_SUFFIXED.get(mode)
     if compiler_tag:
-        pattern = (
-            f"{model.file_prefix}-{fragment}bench-{ver}-{compiler_tag}-*.jsonl"
-        )
+        pattern = f"{model.file_prefix}-{fragment}bench-{ver}-{compiler_tag}-*.jsonl"
     else:
         pattern = f"{model.file_prefix}-{fragment}bench-{ver}.jsonl"
 
@@ -439,22 +437,27 @@ def _default_version() -> str:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--version", default=_default_version(),
+        "--version",
+        default=_default_version(),
         help="Bench version to plot (default: pyproject.toml)",
     )
     parser.add_argument(
-        "--results-dir", default="results",
+        "--results-dir",
+        default="results",
         help="Directory containing JSONL result files",
     )
     parser.add_argument(
-        "--output", default=None,
+        "--output",
+        default=None,
         help=(
             "Output PNG path "
             "(default: assets/results-graph[_v{version}][_with-{extras}].png)"
         ),
     )
     parser.add_argument(
-        "--extra", action="append", default=[],
+        "--extra",
+        action="append",
+        default=[],
         choices=sorted(OPTIONAL_COMPARISON_MODES),
         help=(
             "Additional comparison language to include in the chart "
