@@ -17,6 +17,7 @@ from vera_bench.runner import (
     ProblemResult,
     _aver_literal,
     _strip_aver_main,
+    _strip_module_effects,
     extract_code,
     extract_vera_code,
 )
@@ -880,6 +881,60 @@ class TestStripAverMain:
         result = _strip_aver_main(code)
         assert "fn main" not in result
         assert "fn bar" in result
+
+
+class TestStripModuleEffects:
+    def test_removes_inline_empty_effects(self):
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects []\n"
+            "\n"
+            "fn f(x: Int) -> Int\n"
+            "    x + 1\n"
+        )
+        result = _strip_module_effects(code)
+        assert "effects []" not in result
+        assert "fn f" in result
+        assert "module M" in result
+
+    def test_removes_inline_listed_effects(self):
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects [Console.print, Disk.readText]\n"
+            "\n"
+            "fn f() -> Unit\n"
+            "    ! [Console.print]\n"
+            '    Console.print("hi")\n'
+        )
+        result = _strip_module_effects(code)
+        assert "effects [" not in result
+        assert "fn f" in result
+        assert "Console.print" in result  # body still has it
+
+    def test_removes_multiline_effects(self):
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects [\n"
+            "        Console.print,\n"
+            "        Disk.readText,\n"
+            "    ]\n"
+            "\n"
+            "fn f() -> Unit\n"
+            "    ! [Console.print]\n"
+            '    Console.print("hi")\n'
+        )
+        result = _strip_module_effects(code)
+        assert "effects [" not in result
+        assert "Disk.readText" not in result.split("fn f")[0]
+        assert "fn f" in result
+
+    def test_no_op_when_no_effects(self):
+        code = 'module M\n    intent = "t"\n\nfn f(x: Int) -> Int\n    x + 1\n'
+        result = _strip_module_effects(code)
+        assert result == code
 
 
 class TestEvaluateAverCode:
