@@ -477,7 +477,11 @@ def _evaluate_aver_code(
 
     # Strategy: strip any existing main() from the LLM code and replace
     # with our own that calls the entry_point with specific test args.
-    code_without_main = _strip_aver_main(code)
+    # Also drop any module-level `effects [...]` boundary the LLM
+    # declared — Aver 0.13+ enforces it as a hard type error, but the
+    # injected main needs `! [Console.print]` which the original
+    # boundary may not cover.
+    code_without_main = _strip_module_effects(_strip_aver_main(code))
 
     all_pass = True
     for i, tc in enumerate(test_cases):
@@ -560,6 +564,77 @@ def _strip_aver_main(code: str) -> str:
         if not skip:
             result_lines.append(line)
     return "\n".join(result_lines)
+
+
+_AVER_EFFECTS_OPEN_RE = re.compile(r"^effects\s*\[")
+
+
+def _strip_module_effects(code: str) -> str:
+    """Remove the module header's `effects [...]` declaration if present.
+
+    Aver 0.13+ enforces that every function's `! [Effect]` is covered
+    by the module's declared `effects [...]` boundary. The bench
+    injects its own `fn main()` with `! [Console.print]`, which would
+    violate any narrower boundary the LLM declared (including the
+    common `effects []` for "pure" modules). Stripping the line
+    returns the module to legacy / no-boundary mode where the
+    injected main type-checks.
+
+    Scoped to the module-header window: we start matching after a
+    top-level `module X` line and stop at the next top-level item
+    (a non-indented, non-blank, non-comment line). Outside that
+    window any `effects [...]` we see is left alone — it isn't the
+    boundary declaration this strip was written for.
+    """
+    lines = code.split("\n")
+    out = []
+    in_module_header = False
+    skip_until_close = False
+    for line in lines:
+        stripped = line.strip()
+        indent_len = len(line) - len(line.lstrip(" "))
+
+        if skip_until_close:
+            # Multi-line `effects [\n  ...\n]` — drop everything up to
+            # and including the line that closes the bracket. Use
+            # presence rather than `endswith("]")` so a trailing line
+            # comment (Aver's `// ...` syntax) doesn't make us miss
+            # the close and chew through the rest of the file.
+            if "]" in stripped:
+                skip_until_close = False
+            continue
+
+        # Track the module-header window. The header runs from the
+        # `module X` line through the last indented line before the
+        # next top-level item (mirrors how the Aver parser scopes
+        # `intent` / `exposes` / `depends` / `effects`).
+        if indent_len == 0 and stripped.startswith("module "):
+            in_module_header = True
+            out.append(line)
+            continue
+        if (
+            in_module_header
+            and indent_len == 0
+            and stripped
+            and not stripped.startswith("//")
+        ):
+            in_module_header = False
+
+        if (
+            in_module_header
+            and indent_len > 0
+            and _AVER_EFFECTS_OPEN_RE.match(stripped)
+        ):
+            # Same `]`-presence rule as the skip_until_close branch —
+            # tolerates `effects [...] // pure module` (single-line
+            # declaration with a trailing comment) without falling into
+            # the multi-line skip path that would eat the function body.
+            if "]" in stripped:
+                continue
+            skip_until_close = True
+            continue
+        out.append(line)
+    return "\n".join(out)
 
 
 def _aver_literal(value) -> str:

@@ -17,6 +17,7 @@ from vera_bench.runner import (
     ProblemResult,
     _aver_literal,
     _strip_aver_main,
+    _strip_module_effects,
     extract_code,
     extract_vera_code,
 )
@@ -880,6 +881,154 @@ class TestStripAverMain:
         result = _strip_aver_main(code)
         assert "fn main" not in result
         assert "fn bar" in result
+
+
+class TestStripModuleEffects:
+    def test_removes_inline_empty_effects(self):
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects []\n"
+            "\n"
+            "fn f(x: Int) -> Int\n"
+            "    x + 1\n"
+        )
+        result = _strip_module_effects(code)
+        assert "effects []" not in result
+        assert "fn f" in result
+        assert "module M" in result
+
+    def test_removes_inline_listed_effects(self):
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects [Console.print, Disk.readText]\n"
+            "\n"
+            "fn f() -> Unit\n"
+            "    ! [Console.print]\n"
+            '    Console.print("hi")\n'
+        )
+        result = _strip_module_effects(code)
+        assert "effects [" not in result
+        assert "fn f" in result
+        assert "Console.print" in result  # body still has it
+
+    def test_removes_multiline_effects(self):
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects [\n"
+            "        Console.print,\n"
+            "        Disk.readText,\n"
+            "    ]\n"
+            "\n"
+            "fn f() -> Unit\n"
+            "    ! [Console.print]\n"
+            '    Console.print("hi")\n'
+        )
+        result = _strip_module_effects(code)
+        assert "effects [" not in result
+        assert "Disk.readText" not in result.split("fn f")[0]
+        assert "fn f" in result
+
+    def test_no_op_when_no_effects(self):
+        code = 'module M\n    intent = "t"\n\nfn f(x: Int) -> Int\n    x + 1\n'
+        result = _strip_module_effects(code)
+        assert result == code
+
+    def test_no_op_when_no_module_declaration(self):
+        # Without a `module X` header there is no module-effect
+        # boundary to strip; an `effects [...]` token at the top
+        # level is something else, so we must leave the code
+        # untouched. The bench-side wrapper synthesises a `module
+        # Test{safe_id}` for these cases — it never owned the
+        # boundary in the first place.
+        code = 'effects [Console.print]\n\nfn f() -> Unit\n    Console.print("hi")\n'
+        result = _strip_module_effects(code)
+        assert result == code
+
+    def test_strips_arbitrary_whitespace_between_keyword_and_bracket(self):
+        # LLM-formatted output may emit any whitespace between
+        # `effects` and `[`; the strip must catch every variant the
+        # Aver parser accepts, not just the canonical single space.
+        for opener in ("effects[", "effects [", "effects  [", "effects\t["):
+            code = (
+                "module M\n"
+                '    intent = "t"\n'
+                f"    {opener}Console.print]\n"
+                "\n"
+                "fn f() -> Unit\n"
+                "    ! [Console.print]\n"
+                '    Console.print("hi")\n'
+            )
+            result = _strip_module_effects(code)
+            header_part = result.split("fn f")[0]
+            assert "Console.print]" not in header_part, (
+                f"failed to strip header with opener: {opener!r}"
+            )
+            assert "fn f" in result
+
+    def test_only_strips_inside_module_header(self):
+        # An `effects [...]`-shaped line that appears below a
+        # function body must not be removed; only the module-header
+        # occurrence is the bench's concern.
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects [Console.print]\n"
+            "\n"
+            "fn f() -> Unit\n"
+            "    effects [Console.print]\n"
+            '    Console.print("hi")\n'
+        )
+        result = _strip_module_effects(code)
+        lines = result.split("\n")
+        # Header `effects` line gone, fn-body `effects` line kept.
+        assert sum(1 for line in lines if "effects [Console.print]" in line) == 1
+
+    def test_strips_inline_effects_with_trailing_comment(self):
+        # Aver allows `// ...` line comments; an inline `effects
+        # [...] // comment` declaration must be detected as
+        # single-line, not fall into the multi-line skip path that
+        # would chew through the function body.
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects [Console.print] // pure module\n"
+            "\n"
+            "fn f() -> Unit\n"
+            "    ! [Console.print]\n"
+            '    Console.print("hi")\n'
+        )
+        result = _strip_module_effects(code)
+        # Header `effects` line is gone.
+        assert "effects [Console.print]" not in result
+        # And critically: the function body is intact, NOT eaten by
+        # a runaway skip_until_close.
+        assert "fn f() -> Unit" in result
+        assert 'Console.print("hi")' in result
+
+    def test_strips_multiline_effects_with_trailing_comment_on_close(self):
+        # Same hazard on the closing line of a multi-line list:
+        # `]` can be followed by a trailing comment.
+        code = (
+            "module M\n"
+            '    intent = "t"\n'
+            "    effects [\n"
+            "        Console.print,\n"
+            "    ] // pure module\n"
+            "\n"
+            "fn f() -> Unit\n"
+            "    ! [Console.print]\n"
+            '    Console.print("hi")\n'
+        )
+        result = _strip_module_effects(code)
+        # Whole effects block gone (header through close).
+        assert "effects [" not in result
+        assert "Console.print," not in result
+        # Function body intact.
+        assert "fn f() -> Unit" in result
+        assert 'Console.print("hi")' in result
 
 
 class TestEvaluateAverCode:
