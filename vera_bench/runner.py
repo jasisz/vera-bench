@@ -566,6 +566,9 @@ def _strip_aver_main(code: str) -> str:
     return "\n".join(result_lines)
 
 
+_AVER_EFFECTS_OPEN_RE = re.compile(r"^effects\s*\[")
+
+
 def _strip_module_effects(code: str) -> str:
     """Remove the module header's `effects [...]` declaration if present.
 
@@ -617,7 +620,7 @@ def _strip_module_effects(code: str) -> str:
         if (
             in_module_header
             and indent_len > 0
-            and (stripped.startswith("effects [") or stripped.startswith("effects["))
+            and _AVER_EFFECTS_OPEN_RE.match(stripped)
         ):
             if stripped.endswith("]"):
                 continue

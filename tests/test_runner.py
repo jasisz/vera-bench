@@ -947,6 +947,27 @@ class TestStripModuleEffects:
         result = _strip_module_effects(code)
         assert result == code
 
+    def test_strips_arbitrary_whitespace_between_keyword_and_bracket(self):
+        # LLM-formatted output may emit any whitespace between
+        # `effects` and `[`; the strip must catch every variant the
+        # Aver parser accepts, not just the canonical single space.
+        for opener in ("effects[", "effects [", "effects  [", "effects\t["):
+            code = (
+                "module M\n"
+                '    intent = "t"\n'
+                f"    {opener}Console.print]\n"
+                "\n"
+                "fn f() -> Unit\n"
+                "    ! [Console.print]\n"
+                '    Console.print("hi")\n'
+            )
+            result = _strip_module_effects(code)
+            header_part = result.split("fn f")[0]
+            assert "Console.print]" not in header_part, (
+                f"failed to strip header with opener: {opener!r}"
+            )
+            assert "fn f" in result
+
     def test_only_strips_inside_module_header(self):
         # An `effects [...]`-shaped line that appears below a
         # function body must not be removed; only the module-header
